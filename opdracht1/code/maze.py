@@ -1,5 +1,5 @@
-from state import State
-from util import get_positions_around
+from code.state import State
+from code.util import get_positions_around
 
 
 class Maze:

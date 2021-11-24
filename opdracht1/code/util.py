@@ -1,4 +1,4 @@
-from state import State
+from code.state import State
 
 
 def get_positions_around(position: tuple):

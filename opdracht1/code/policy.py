@@ -1,6 +1,6 @@
-from maze import Maze
-from state import State
-from util import get_positions_around, get_possible_states, max_bellman
+from code.maze import Maze
+from code.state import State
+from code.util import get_positions_around, get_possible_states, max_bellman
 
 
 class Policy:
