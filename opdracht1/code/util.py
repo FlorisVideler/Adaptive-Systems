@@ -1,8 +1,9 @@
 from state import State
 
+
 def get_positions_around(position: tuple):
     x, y = position
-    positions = [(x,y)] * 4
+    positions = [(x, y)] * 4
 
     if y - 1 >= 0:
         positions[0] = (x, y-1)
@@ -15,15 +16,15 @@ def get_positions_around(position: tuple):
 
     if x - 1 >= 0:
         positions[3] = (x-1, y)
-    
+
     return positions
 
 
 def get_possible_states(all_states: list, positions: tuple):
-        states = []
-        for x, y in positions:
-            states.append(all_states[y][x])
-        return states
+    states = []
+    for x, y in positions:
+        states.append(all_states[y][x])
+    return states
 
 
 def bellman(discount: float, state: State):

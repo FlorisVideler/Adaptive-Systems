@@ -1,11 +1,10 @@
 from state import State
 from util import get_positions_around
 
-import numpy as np
-
 
 class Maze:
-    def __init__(self, lenght: int, height: int, all_rewards: int, special_rewards: dict, end_positions: list) -> None:
+    def __init__(self, lenght: int, height: int, all_rewards: int,
+                 special_rewards: dict, end_positions: list) -> None:
         self.lenght = lenght
         self.height = height
         self.all_rewards = all_rewards
@@ -40,6 +39,5 @@ class Maze:
     def do_step(self, state: State, action: int) -> State:
         surrounding_positions = get_positions_around(state.location)
         next_x, next_y = surrounding_positions[action]
-        next_position = (next_x, next_y)
         next_state = self.maze[next_y][next_x]
         return next_state
