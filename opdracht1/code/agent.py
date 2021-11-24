@@ -9,17 +9,17 @@ import numpy as np
 
 class Agent:
     def __init__(self, maze: Maze, policy: Policy, start_position: tuple = (2, 3), discount: int = 1) -> None:
-        self.maze = maze
-        self.policy = policy
+        self.maze: Maze = maze
+        self.policy: Policy = policy
         self.discount = discount
         self.threshold = 0.1
         start_x, start_y = start_position
         self.state: State = self.maze.maze[start_y][start_x]       
 
-    def pick_action(self, state: State):
+    def pick_action(self, state: State) -> int:
         return self.policy.select_action(self.maze.maze, state, self.discount)[1]
 
-    def value_iteration(self):
+    def value_iteration(self) -> None:
         c = 0
         print(f'\nSweep {c}: ')
         print(np.matrix(self.maze.maze))
@@ -45,19 +45,17 @@ class Agent:
         
         print(f'Done after {c} sweeps!\n')
 
-    def simulate(self):
+    def simulate(self) -> None:
         print(f'\nSimulating agent starting on {self.state.location}')
         while not self.state.done:
-            # print(self.state.location)
             action = self.pick_action(self.state)
-            # print(f'action: {action}')
             next_state = self.maze.do_step(self.state, action)
             print(f'Moving from {self.state.location} to {next_state.location} {self.maze.actions[action]}')
 
             self.state = next_state
         print(f'Finished simulation om {self.state.location}\n')
 
-    def visualize(self):
+    def visualize(self) -> None:
         output_str = f'\n{"Values:":16}{"Policy:"}\n'
         for y, y_row in enumerate(self.maze.maze):
             output_row_values = ''

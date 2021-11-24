@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Maze:
-    def __init__(self, lenght, height, all_rewards, special_rewards, end_positions) -> None:
+    def __init__(self, lenght: int, height: int, all_rewards: int, special_rewards: dict, end_positions: list) -> None:
         self.lenght = lenght
         self.height = height
         self.all_rewards = all_rewards
@@ -22,7 +22,7 @@ class Maze:
 
         self.maze = self.generate_maze()
 
-    def generate_maze(self):
+    def generate_maze(self) -> list:
         maze = []
         for y in range(self.height):
             y_row = []
@@ -37,7 +37,7 @@ class Maze:
             maze.append(y_row)
         return maze
 
-    def do_step(self, state, action):
+    def do_step(self, state: State, action: int) -> State:
         surrounding_positions = get_positions_around(state.location)
         next_x, next_y = surrounding_positions[action]
         next_position = (next_x, next_y)
