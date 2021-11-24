@@ -2,15 +2,29 @@ import copy
 
 import numpy as np
 
-from code.maze import Maze
-from code.policy import Policy
-from code.state import State
-from code.util import get_positions_around, get_possible_states, max_bellman
+from maze import Maze
+from policy import Policy
+from state import State
+from util import get_positions_around, get_possible_states, max_bellman
 
 
 class Agent:
+    """
+    Class to represent an agent in the simulation.
+    """
     def __init__(self, maze: Maze, policy: Policy,
                  start_position: tuple = (2, 3), discount: int = 1) -> None:
+        """
+        Constructor for the Agent class.
+
+        Args:
+            maze (Maze): The Maze to navigate in.
+            policy (Policy): The policy to use.
+            start_position (tuple, optional): The start position of the Agent.
+            Defaults to (2, 3).
+            discount (int, optional): The discount that is used for
+            calculations. Defaults to 1.
+        """
         self.maze: Maze = maze
         self.policy: Policy = policy
         self.discount = discount
@@ -19,10 +33,22 @@ class Agent:
         self.state: State = self.maze.maze[start_y][start_x]
 
     def pick_action(self, state: State) -> int:
+        """
+        Picks an action based on the state.
+
+        Args:
+            state (State): The state to base the action on.
+
+        Returns:
+            int: The action as an int.
+        """
         return self.policy.select_action(self.maze.maze,
                                          state, self.discount)[1]
 
     def value_iteration(self) -> None:
+        """
+        Does the value iteration algorithm.
+        """
         c = 0
         print(f'\nSweep {c}: ')
         print(np.matrix(self.maze.maze))
@@ -53,6 +79,9 @@ class Agent:
         print(f'Done after {c} sweeps!\n')
 
     def simulate(self) -> None:
+        """
+        Simulates walking through the maze.
+        """
         print(f'\nSimulating agent starting on {self.state.location}')
         while not self.state.done:
             action = self.pick_action(self.state)
@@ -65,6 +94,9 @@ class Agent:
         print(f'Finished simulation om {self.state.location}\n')
 
     def visualize(self) -> None:
+        """
+        Visualizes the values and the policy.
+        """
         output_str = f'\n{"Values:":16}{"Policy:"}\n'
         for y, y_row in enumerate(self.maze.maze):
             output_row_values = ''

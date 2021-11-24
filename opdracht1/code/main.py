@@ -1,6 +1,6 @@
-from code.agent import Agent
-from code.maze import Maze
-from code.policy import Policy
+from agent import Agent
+from maze import Maze
+from policy import Policy
 
 
 maze = Maze(
