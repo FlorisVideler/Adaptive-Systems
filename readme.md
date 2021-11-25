@@ -13,3 +13,10 @@ The code contains 3 classes, 1 dataclass, 1 utility functions file and 1 file to
 - Agent class (agent.py): Represents an agent, does all the hard work. Calculates the values and moves in the maze.
 - State dataclass (State.py): Represents the state as a dataclass.
 - Utility functions (util.py): Has a couple of helper functions that are used multiple times.
+
+## Assignment 1.3.0 (result)
+Values:         Policy:
+38 39 40  0     →  →  →  ⦾   
+37 38 39 40     ↑  ↑  ↑  ↑   
+36 37 36 35     ↑  ↑  ←  ←   
+ 0 36 35 34     ⦾  ↑  ↑  ↑
