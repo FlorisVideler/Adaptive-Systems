@@ -2,11 +2,16 @@ from state import State
 from util import get_positions_around, get_possible_states, max_bellman
 
 
+# TODO: Make policy save a value function that picks randomly.
 class Policy:
     """
     A class to represent a policy. Could be a function,
     but kept like this for later use.
     """
+    def __init__(self) -> None:
+        # up ,right, down, left
+        self.legal_actions = [0, 1, 2, 3]
+
     def select_action(self, maze: list,
                       state: State, discount: float) -> tuple:
         """

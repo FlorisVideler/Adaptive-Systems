@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class State:
     """
     Dataclass that represents a State.
@@ -17,5 +17,8 @@ class State:
     value: float
     done: bool
 
-    def __repr__(self) -> str:
+    # def __repr__(self) -> str:
+    #     return str(self.value)
+
+    def __str__(self) -> str:
         return str(self.value)

@@ -45,13 +45,21 @@ class Agent:
         return self.policy.select_action(self.maze.maze,
                                          state, self.discount)[1]
 
+    def first_visit_mc_prediction(self):
+        values = copy.deepcopy(self.maze.maze)
+        values_flat = list(np.array(values).flatten())
+        empty_lists = [[] for _ in range(len(values_flat))]
+        returns = dict(zip(values_flat, empty_lists))
+        print(returns)
+
     def value_iteration(self) -> None:
         """
         Does the value iteration algorithm.
         """
         c = 0
         print(f'\nSweep {c}: ')
-        print(np.matrix(self.maze.maze))
+        visual_maze = np.zeros_like(np.array(self.maze.maze))
+        print(visual_maze)
         delta = self.threshold+1
         while delta > self.threshold:
             delta = 0
@@ -68,13 +76,14 @@ class Agent:
                         new_maze[y][x] = State(
                             (x, y), self.maze.maze[y][x].reward,
                             new_value, self.maze.maze[y][x].done)
+                        visual_maze[y][x] = new_value
                         delta = max(delta, abs(old_value-new_value))
 
             self.maze.maze = new_maze
             if delta > self.threshold:
                 c += 1
                 print(f'Sweep {c}: ')
-                print(np.matrix(self.maze.maze))
+                print(visual_maze)
 
         print(f'Done after {c} sweeps!\n')
 
