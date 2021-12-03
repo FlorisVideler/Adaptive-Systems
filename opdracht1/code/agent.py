@@ -13,6 +13,7 @@ class Agent:
     """
     Class to represent an agent in the simulation.
     """
+
     def __init__(self, maze: Maze, policy: Policy,
                  start_position: tuple = (2, 3), discount: int = 1) -> None:
         """
@@ -33,7 +34,8 @@ class Agent:
         start_x, start_y = start_position
         self.state: State = self.maze.maze[start_y][start_x]
 
-        self.value_function = self.generate_empty_value_function(maze.lenght, maze.height)
+        self.value_function = self.generate_empty_value_function(
+            maze.lenght, maze.height)
 
     def generate_empty_value_function(self, lenght, height):
         value_function = []
@@ -43,6 +45,18 @@ class Agent:
                 y_row.append(0)
             value_function.append(y_row)
         return value_function
+
+    def generate_empty_q_function(self, lenght, height):
+        q_function = []
+        for y in range(height):
+            y_row = []
+            for x in range(lenght):
+                actions_row = []
+                for legal_action in self.policy.legal_actions:
+                    actions_row.append(0)
+                y_row.append(actions_row)
+            q_function.append(y_row)
+        return q_function
 
     def pick_action(self, state: State) -> int:
         """
@@ -58,7 +72,6 @@ class Agent:
         #                                  state, self.discount)[1]
         # return random.choice(self.policy.select_actions(self.value_function, state, self.discount))
         return self.policy.select_action(state)
-
 
     def generate_episode(self):
         start_x, start_y = random.randrange(4), random.randrange(4)
@@ -84,10 +97,12 @@ class Agent:
 
     # Add policy as parameter?
     def first_visit_mc_prediction(self, amount_of_episodes=10_000):
-        local_value_function = self.generate_empty_value_function(4, 4)   #copy.deepcopy(self.value_function)
+        local_value_function = self.generate_empty_value_function(
+            4, 4)  # copy.deepcopy(self.value_function)
         # print(type(local_value_function[0]))
         # print(np.array(local_value_function))
-        maze_positions_flat = [s.location for s in list(np.array(self.maze.maze).flatten())]
+        maze_positions_flat = [s.location for s in list(
+            np.array(self.maze.maze).flatten())]
         empty_lists = [[] for _ in range(len(maze_positions_flat))]
         returns = dict(zip(maze_positions_flat, empty_lists))
         for i in range(amount_of_episodes):
@@ -101,12 +116,13 @@ class Agent:
                     if current_state not in states_episode[:t]:
                         x, y = current_state.location
                         returns[current_state.location].append(g)
-                        local_value_function[y][x] = sum(returns[current_state.location]) / len(returns[current_state.location])
+                        local_value_function[y][x] = sum(
+                            returns[current_state.location]) / len(returns[current_state.location])
                     # self.maze.maze = values
         print(np.array(local_value_function))
         # print(local_value_function)
 
-    def tabular_td(self, amount_of_episodes=10_000, a=0.1):
+    def tabular_td(self, amount_of_episodes=10_000, alpha=0.1):
         local_value_function = self.generate_empty_value_function(4, 4)
 
         for i in range(amount_of_episodes):
@@ -118,11 +134,43 @@ class Agent:
                 reward = next_state.reward
                 x_current_state, y_current_state = current_state.location
                 x_next_state, y_next_state = next_state.location
-                local_value_function[y_current_state][x_current_state] = local_value_function[y_current_state][x_current_state] + a * (reward + self.discount * local_value_function[y_next_state][x_next_state] - local_value_function[y_current_state][x_current_state])
+                local_value_function[y_current_state][x_current_state] = local_value_function[y_current_state][x_current_state] + alpha * (
+                    reward + self.discount * local_value_function[y_next_state][x_next_state] - local_value_function[y_current_state][x_current_state])
                 current_state = next_state
         print(np.array(local_value_function))
-        
-        
+
+    def on_policy_first_vist_mc(self, amount_of_episodes=10_000, epsilon=0.1):
+        maze_positions_flat = [s.location for s in list(
+            np.array(self.maze.maze).flatten())]
+        returns_list = []
+        for position in maze_positions_flat:
+            for legal_action in self.policy.legal_actions:
+                returns_list.append((position, legal_action))
+        empty_lists = [[] for _ in range(len(returns_list))]
+        returns = dict(zip(returns_list, empty_lists))
+
+        q_function = self.generate_empty_q_function(4, 4)
+        print(q_function)
+
+        for i in range(amount_of_episodes):
+            states_episode, action_episode, reward_episode = self.generate_episode()
+            if not states_episode[0].done:
+                g = 0
+                for t in range(len(states_episode)-1, -1, -1):
+                    g = self.discount*g+reward_episode[t+1]
+                    current_state = states_episode[t]
+                    current_action = action_episode[t]
+                    if current_state not in states_episode[:t] and current_action not in action_episode[:t]:
+                        returns[current_state.location, current_action].append(g)
+                        x_current_state, y_current_state = current_state.location
+                        q_function[y_current_state][x_current_state][current_action] = sum(returns[current_state.location, current_action]) / len( returns[current_state.location, current_action])
+                        best_action = max(q_function[y_current_state][x_current_state])
+                        for action in q_function[y_current_state][x_current_state]:
+                            #TODO
+                            pass
+
+                        
+
     def value_iteration(self) -> None:
         """
         Does the value iteration algorithm.
@@ -142,7 +190,8 @@ class Agent:
                         positions_around = get_positions_around((x, y))
                         possible_states = get_possible_states(
                             self.maze.maze, positions_around)
-                        new_value = max_bellman(self.discount, possible_states, self.value_function)[0]
+                        new_value = max_bellman(
+                            self.discount, possible_states, self.value_function)[0]
                         new_value_function[y][x] = new_value
                         visual_maze[y][x] = new_value
                         delta = max(delta, abs(old_value-new_value))
@@ -156,7 +205,8 @@ class Agent:
         print(f'Done after {c} sweeps!\n')
 
     def update_policy(self):
-        self.policy.update_to_greedy_policy_matrix(self.discount, self.maze.maze, self.value_function)
+        self.policy.update_to_greedy_policy_matrix(
+            self.discount, self.maze.maze, self.value_function)
         # print(np.array(self.policy.policy_matrix))
 
     def simulate(self) -> None:
