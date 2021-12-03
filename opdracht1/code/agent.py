@@ -83,7 +83,7 @@ class Agent:
         return states_episode, action_episode, reward_episode
 
     # Add policy as parameter?
-    def first_visit_mc_prediction(self, amount_of_episodes=100):
+    def first_visit_mc_prediction(self, amount_of_episodes=10_000):
         local_value_function = self.generate_empty_value_function(4, 4)   #copy.deepcopy(self.value_function)
         # print(type(local_value_function[0]))
         # print(np.array(local_value_function))
@@ -106,14 +106,21 @@ class Agent:
         print(np.array(local_value_function))
         # print(local_value_function)
 
-    def tabular_td(self, amount_of_episodes=100, a=0.1):
+    def tabular_td(self, amount_of_episodes=10_000, a=0.1):
         local_value_function = self.generate_empty_value_function(4, 4)
 
         for i in range(amount_of_episodes):
             start_x, start_y = random.randrange(4), random.randrange(4)
             current_state = self.maze.maze[start_y][start_x]
             while not current_state.done:
-                pass
+                current_action = self.pick_action(current_state)
+                next_state = self.maze.do_step(current_state, current_action)
+                reward = next_state.reward
+                x_current_state, y_current_state = current_state.location
+                x_next_state, y_next_state = next_state.location
+                local_value_function[y_current_state][x_current_state] = local_value_function[y_current_state][x_current_state] + a * (reward + self.discount * local_value_function[y_next_state][x_next_state] - local_value_function[y_current_state][x_current_state])
+                current_state = next_state
+        print(np.array(local_value_function))
         
         
     def value_iteration(self) -> None:
