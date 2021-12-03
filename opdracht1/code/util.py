@@ -47,7 +47,7 @@ def get_possible_states(all_states: list, positions: tuple) -> list:
     return states
 
 
-def bellman(discount: float, state: State) -> float:
+def bellman(discount: float, state: State, value) -> float:
     """
     Calculates the value using the bellman function.
 
@@ -58,10 +58,10 @@ def bellman(discount: float, state: State) -> float:
     Returns:
         float: The value of a state.
     """
-    return state.reward + discount * state.value
+    return state.reward + discount * value
 
 
-def max_bellman(discount: float, states: list) -> tuple:
+def max_bellman(discount: float, states: list, value_function) -> tuple:
     """
     Gets the maximun value of multiple states.
 
@@ -75,6 +75,21 @@ def max_bellman(discount: float, states: list) -> tuple:
     """
     all_results = []
     for state in states:
-        all_results.append(bellman(discount, state))
+        x, y = state.location
+        all_results.append(bellman(discount, state, value_function[y][x]))
     # Sometimes there are two maxes, we just take te first one.
     return max(all_results), all_results.index(max(all_results))
+
+
+def all_max_bellman(discount: float, states: list, value_function) -> tuple:
+    all_results = []
+    # print(f'States: {states}')
+    for state in states:
+        x, y = state.location
+        all_results.append(bellman(discount, state, value_function[y][x]))
+    actions = []
+    max_result = max(all_results)
+    for index, result in enumerate(all_results):
+        if result == max_result:
+            actions.append(index)
+    return actions

@@ -45,13 +45,13 @@ class Maze:
         maze = []
         for y in range(self.height):
             y_row = []
-            for x in range(self.height):
+            for x in range(self.lenght):
                 location = x, y
                 reward = self.all_rewards
                 if location in self.special_rewards:
                     reward = self.special_rewards[location]
                 end_position = location in self.end_positions
-                state = State((x, y), reward, 0, end_position)
+                state = State((x, y), reward, end_position)
                 y_row.append(state)
             maze.append(y_row)
         return maze
