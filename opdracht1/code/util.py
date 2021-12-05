@@ -1,5 +1,9 @@
 from state import State
 
+from matplotlib import pyplot as plt
+from matplotlib.tri import Triangulation
+import numpy as np
+
 
 def get_positions_around(position: tuple):
     """
@@ -93,3 +97,64 @@ def all_max_bellman(discount: float, states: list, value_function) -> tuple:
         if result == max_result:
             actions.append(index)
     return actions
+
+
+def get_all_max(l):
+    max_value = max(l)
+    max_indexes = []
+    for index, item in enumerate(l):
+        if item == max_value:
+            max_indexes.append(index)
+    return max_indexes
+        
+
+
+
+def triangulation_for_triheatmap(M, N):
+    xv, yv = np.meshgrid(np.arange(-0.5, M), np.arange(-0.5, N))  # vertices of the little squares
+    xc, yc = np.meshgrid(np.arange(0, M), np.arange(0, N))  # centers of the little squares
+    x = np.concatenate([xv.ravel(), xc.ravel()])
+    y = np.concatenate([yv.ravel(), yc.ravel()])
+    cstart = (M + 1) * (N + 1)  # indices of the centers
+
+    trianglesN = [(i + j * (M + 1), i + 1 + j * (M + 1), cstart + i + j * M)
+                  for j in range(N) for i in range(M)]
+    trianglesE = [(i + 1 + j * (M + 1), i + 1 + (j + 1) * (M + 1), cstart + i + j * M)
+                  for j in range(N) for i in range(M)]
+    trianglesS = [(i + 1 + (j + 1) * (M + 1), i + (j + 1) * (M + 1), cstart + i + j * M)
+                  for j in range(N) for i in range(M)]
+    trianglesW = [(i + (j + 1) * (M + 1), i + j * (M + 1), cstart + i + j * M)
+                  for j in range(N) for i in range(M)]
+    return [Triangulation(x, y, triangles) for triangles in [trianglesN, trianglesE, trianglesS, trianglesW]]
+
+
+def transform_policy_to_matrix_values(policy_matrix):
+    policy_matrix = np.array(policy_matrix)
+    up_values = policy_matrix[:, :, 0]
+    right_values = policy_matrix[:, :, 1]
+    down_values = policy_matrix[:, :, 2]
+    left_values = policy_matrix[:, :, 3]
+    return [up_values, right_values, down_values, left_values]
+
+
+def plot_matrix(M, N, values):
+    values = np.array(values)
+    triangul = triangulation_for_triheatmap(M, N)
+    cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
+    norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
+    fig, ax = plt.subplots()
+    imgs = [ax.tripcolor(t, val.ravel(), cmap='RdYlGn', vmin=0, vmax=1, ec='white')
+        for t, val in zip(triangul, values)]
+    for val, dir in zip(values, [(-1, 0), (0, 1), (1, 0), (0, -1)]):
+        for i in range(M):
+            for j in range(N):
+                v = val[j, i]
+                ax.text(i + 0.3 * dir[1], j + 0.3 * dir[0], f'{v:.2f}', color='k' if 0.2 < v < 0.8 else 'w', ha='center', va='center')
+    cbar = fig.colorbar(imgs[0], ax=ax)
+    ax.set_xticks(range(M))
+    ax.set_yticks(range(N))
+    ax.invert_yaxis()
+    ax.margins(x=0, y=0)
+    ax.set_aspect('equal', 'box')  # square cells
+    plt.tight_layout()
+    plt.show()

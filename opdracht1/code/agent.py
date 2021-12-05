@@ -6,7 +6,7 @@ import numpy as np
 from maze import Maze
 from policy import Policy
 from state import State
-from util import get_positions_around, get_possible_states, max_bellman
+from util import get_positions_around, get_possible_states, max_bellman, all_max_bellman
 
 
 class Agent:
@@ -139,7 +139,7 @@ class Agent:
                 current_state = next_state
         print(np.array(local_value_function))
 
-    def on_policy_first_vist_mc(self, amount_of_episodes=10_000, epsilon=0.1):
+    def on_policy_first_vist_mc(self, amount_of_episodes=100_000, epsilon=0.1):
         maze_positions_flat = [s.location for s in list(
             np.array(self.maze.maze).flatten())]
         returns_list = []
@@ -150,7 +150,6 @@ class Agent:
         returns = dict(zip(returns_list, empty_lists))
 
         q_function = self.generate_empty_q_function(4, 4)
-        print(q_function)
 
         for i in range(amount_of_episodes):
             states_episode, action_episode, reward_episode = self.generate_episode()
@@ -164,10 +163,19 @@ class Agent:
                         returns[current_state.location, current_action].append(g)
                         x_current_state, y_current_state = current_state.location
                         q_function[y_current_state][x_current_state][current_action] = sum(returns[current_state.location, current_action]) / len( returns[current_state.location, current_action])
-                        best_action = max(q_function[y_current_state][x_current_state])
-                        for action in q_function[y_current_state][x_current_state]:
-                            #TODO
-                            pass
+                        max_value = max(q_function[y_current_state][x_current_state])
+                        best_action = q_function[y_current_state][x_current_state].index(max_value)
+                        for action, value in enumerate(q_function[y_current_state][x_current_state]):
+                            if action == best_action:
+                                chance = 1 - epsilon + epsilon / len(q_function[y_current_state][x_current_state])
+                            else:
+                                chance = epsilon / len(q_function[y_current_state][x_current_state])
+                            self.policy.policy_matrix[y_current_state][x_current_state][action] = chance
+        print(np.array(self.policy.policy_matrix))
+        return q_function
+
+    
+    # def sarsa()
 
                         
 
@@ -204,9 +212,26 @@ class Agent:
 
         print(f'Done after {c} sweeps!\n')
 
-    def update_policy(self):
-        self.policy.update_to_greedy_policy_matrix(
-            self.discount, self.maze.maze, self.value_function)
+    def update_policy_to_deterministic(self):
+        new_policy = copy.deepcopy(self.policy.policy_matrix)
+
+        for y, y_row in enumerate(new_policy):
+            for x, x_row in enumerate(y_row):
+                positions_around = get_positions_around((x, y))
+                possible_states = get_possible_states(self.maze.maze, positions_around)
+                all_max_actions = all_max_bellman(self.discount, possible_states, self.value_function)
+                max_chance = 1 / len(all_max_actions)
+                for action, chance in enumerate(x_row):
+                    if action in all_max_actions:
+                        x_row[action] = max_chance
+                    else:
+                        x_row[action] = 0
+        
+        self.policy.policy_matrix = new_policy
+
+
+        # self.policy.update_to_deterministic_policy_matrix(
+        #     self.discount, self.maze.maze, self.value_function)
         # print(np.array(self.policy.policy_matrix))
 
     def simulate(self) -> None:
