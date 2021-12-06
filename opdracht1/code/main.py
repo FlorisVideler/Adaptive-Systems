@@ -1,9 +1,11 @@
+from numpy.random.mtrand import rand
 from agent import Agent
 from maze import Maze
 from policy import Policy
 
 from util import plot_matrix, transform_policy_to_matrix_values
 
+#TODO: Add function to plot grid without triangles
 
 maze = Maze(
     lenght=4,
@@ -34,63 +36,81 @@ agent.simulate()
 agent.visualize()
 
 
-print('Monte Carlo first visit; policy = random; discount = 1; 10000 episodes')
-agent.policy = random_policy
-agent.first_visit_mc_prediction()
-print('\n')
-print('Monte Carlo first visit; policy = random; discount = 0.9; 10000 episodes')
-agent.discount = 0.9
-agent.first_visit_mc_prediction()
-print('\n')
+# print('Monte Carlo first visit; policy = random; discount = 1; 10000 episodes')
+# agent.policy = random_policy
+# agent.first_visit_mc_prediction()
+# print('\n')
+# print('Monte Carlo first visit; policy = random; discount = 0.9; 10000 episodes')
+# agent.discount = 0.9
+# agent.first_visit_mc_prediction()
+# print('\n')
 
-print('Monte Carlo first visit = optimal; discount = 1; 10000 episodes')
-agent.policy = optimal_policy
-agent.discount = 1
-agent.first_visit_mc_prediction()
-print('\n')
-print('Monte Carlo first visit; policy = optimal; discount = 0.9; 10000 episodes')
-agent.discount = 0.9
-agent.first_visit_mc_prediction()
-print('\n')
-
-
+# print('Monte Carlo first visit = optimal; discount = 1; 10000 episodes')
+# agent.policy = optimal_policy
+# agent.discount = 1
+# agent.first_visit_mc_prediction()
+# print('\n')
+# print('Monte Carlo first visit; policy = optimal; discount = 0.9; 10000 episodes')
+# agent.discount = 0.9
+# agent.first_visit_mc_prediction()
+# print('\n')
 
 
-print('Tubular TD; policy = random; discount = 1; 10000 episodes')
-agent.policy = random_policy
-agent.tabular_td()
-print('\n')
-print('Tubular TD; policy = random; discount = 0.9; 10000 episodes')
-agent.discount = 0.9
-agent.tabular_td()
-print('\n')
-
-print('Tubular TD; policy = optimal; discount = 1; 10000 episodes')
-agent.policy = optimal_policy
-agent.discount = 1
-agent.tabular_td()
-print('\n')
-print('Tubular TD; policy = optimal; discount = 0.9; 10000 episodes')
-agent.discount = 0.9
-agent.tabular_td()
-print('\n')
 
 
-print('On=policy first-visit MC control; discount = 1; 10000 episodes')
-agent.policy = random_policy
-agent.discount = 1
-qf = agent.on_policy_first_vist_mc()
+# print('Tubular TD; policy = random; discount = 1; 10000 episodes')
+# agent.policy = random_policy
+# agent.tabular_td()
+# print('\n')
+# print('Tubular TD; policy = random; discount = 0.9; 10000 episodes')
+# agent.discount = 0.9
+# agent.tabular_td()
+# print('\n')
 
-# transform_policy_to_matrix_values(agent.policy.policy_matrix)
-plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
-plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
+# print('Tubular TD; policy = optimal; discount = 1; 10000 episodes')
+# agent.policy = optimal_policy
+# agent.discount = 1
+# agent.tabular_td()
+# print('\n')
+# print('Tubular TD; policy = optimal; discount = 0.9; 10000 episodes')
+# agent.discount = 0.9
+# agent.tabular_td()
+# print('\n')
+
+
+# print('On=policy first-visit MC control; discount = 1; 10000 episodes')
+# agent.policy = random_policy
+# agent.discount = 1
+# qf = agent.on_policy_first_vist_mc()
+
+# # transform_policy_to_matrix_values(agent.policy.policy_matrix)
+# plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
+
+
+# agent.policy.reset_policy()
+# agent.discount = 0.9
+# qf = agent.on_policy_first_vist_mc()
+
+# # transform_policy_to_matrix_values(agent.policy.policy_matrix)
+# plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
+
+
+# agent.policy.reset_policy()
+# agent.policy = random_policy
+# agent.discount = 1
+# qf = agent.sarsa()
+
+# plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
 
 
 agent.policy.reset_policy()
-agent.discount = 0.9
-qf = agent.on_policy_first_vist_mc()
+agent.policy = random_policy
+agent.discount = 1
+qf = agent.q_learning()
 
-# transform_policy_to_matrix_values(agent.policy.policy_matrix)
 plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
 plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
 

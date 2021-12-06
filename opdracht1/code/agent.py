@@ -163,19 +163,80 @@ class Agent:
                         returns[current_state.location, current_action].append(g)
                         x_current_state, y_current_state = current_state.location
                         q_function[y_current_state][x_current_state][current_action] = sum(returns[current_state.location, current_action]) / len( returns[current_state.location, current_action])
-                        max_value = max(q_function[y_current_state][x_current_state])
-                        best_action = q_function[y_current_state][x_current_state].index(max_value)
-                        for action, value in enumerate(q_function[y_current_state][x_current_state]):
-                            if action == best_action:
-                                chance = 1 - epsilon + epsilon / len(q_function[y_current_state][x_current_state])
-                            else:
-                                chance = epsilon / len(q_function[y_current_state][x_current_state])
-                            self.policy.policy_matrix[y_current_state][x_current_state][action] = chance
+                        
+                        self.policy.update_policy(current_state, q_function, epsilon)
+                        
+                        # max_value = max(q_function[y_current_state][x_current_state])
+                        # best_action = q_function[y_current_state][x_current_state].index(max_value)
+                        # for action, value in enumerate(q_function[y_current_state][x_current_state]):
+                        #     if action == best_action:
+                        #         chance = 1 - epsilon + epsilon / len(q_function[y_current_state][x_current_state])
+                        #     else:
+                        #         chance = epsilon / len(q_function[y_current_state][x_current_state])
+                        #     self.policy.policy_matrix[y_current_state][x_current_state][action] = chance
         print(np.array(self.policy.policy_matrix))
         return q_function
 
     
-    # def sarsa()
+    def sarsa(self, amount_of_episodes=200_000, alpha=0.1, epsilon=0.1):
+        q_function = self.generate_empty_q_function(4, 4)
+
+        for i in range(amount_of_episodes):
+            start_x, start_y = random.randrange(4), random.randrange(4)
+            current_state = self.maze.maze[start_y][start_x]
+            self.policy.update_policy(current_state, q_function, epsilon)
+            current_action = self.pick_action(current_state)
+            while not current_state.done:
+                next_state = self.maze.do_step(current_state, current_action)
+                x_current_state, y_current_state = current_state.location
+                x_next_state, y_next_state = next_state.location
+                reward = next_state.reward
+                next_action = self.pick_action(next_state)
+                # print(next_action)
+                q_function[y_current_state][x_current_state][current_action] = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * q_function[y_next_state][x_next_state][next_action] - q_function[y_current_state][x_current_state][current_action])
+                current_state = next_state
+                current_action = next_action
+            # print(i)
+        return q_function
+
+    
+    def q_learning(self, amount_of_episodes=100_000, alpha=0.1, epsilon=0.1):
+        q_function = self.generate_empty_q_function(4, 4)
+
+        for i in range(amount_of_episodes):
+            start_x, start_y = random.randrange(4), random.randrange(4)
+            current_state = self.maze.maze[start_y][start_x]
+            while not current_state.done:
+                self.policy.update_policy(current_state, q_function, epsilon)
+                current_action = self.pick_action(current_state)
+                next_state = self.maze.do_step(current_state, current_action)
+                x_current_state, y_current_state = current_state.location
+                x_next_state, y_next_state = next_state.location
+                reward = next_state.reward
+                q_function[y_current_state][x_current_state][current_action] = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * max(q_function[y_next_state][x_next_state]) - q_function[y_current_state][x_current_state][current_action])
+                current_state = next_state
+        return q_function
+
+
+    def double_q_learning(self, amount_of_episodes=10_000, alpha=0.1, epsilon=0.1):
+        q_function_1 = self.generate_empty_q_function(4, 4)
+        q_function_2 = self.generate_empty_q_function(4, 4)
+
+        for i in range(amount_of_episodes):
+            start_x, start_y = random.randrange(4), random.randrange(4)
+            current_state = self.maze.maze[start_y][start_x]
+            while not current_state.done:
+                self.policy.update_policy(current_state, np.array(q_function_1) + np.array(q_function_2), epsilon)
+                current_action = self.pick_action(current_state)
+                next_state = self.maze.do_step(current_state, current_action)
+                x_current_state, y_current_state = current_state.location
+                x_next_state, y_next_state = next_state.location
+                reward = next_state.reward
+                if random.random() < 0.5:
+                    pass
+                else:
+                    pass
+
 
                         
 

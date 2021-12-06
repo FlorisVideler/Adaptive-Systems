@@ -85,6 +85,20 @@ class Policy:
         return best_steps
 
 
+    def update_policy(self, state, q_function, epsilon):
+        x, y = state.location
+        max_value = max(q_function[y][x])
+        best_action = q_function[y][x].index(max_value)
+        all_maxes = get_all_max(q_function[y][x])
+        if len(all_maxes) > 1:
+            best_action = random.choice(all_maxes)
+        for action, value in enumerate(q_function[y][x]):
+            if action == best_action:
+                chance = 1 - epsilon + epsilon / len(q_function[y][x])
+            else:
+                chance = epsilon / len(q_function[y][x])
+            self.policy_matrix[y][x][action] = chance
+
     def reset_policy(self):
         #TODO: self.lenght en height
         self.policy_matrix = self.generate_random_matrix(4, 4)
