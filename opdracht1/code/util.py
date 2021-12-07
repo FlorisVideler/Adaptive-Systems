@@ -87,7 +87,6 @@ def max_bellman(discount: float, states: list, value_function) -> tuple:
 
 def all_max_bellman(discount: float, states: list, value_function) -> tuple:
     all_results = []
-    # print(f'States: {states}')
     for state in states:
         x, y = state.location
         all_results.append(bellman(discount, state, value_function[y][x]))
@@ -99,7 +98,7 @@ def all_max_bellman(discount: float, states: list, value_function) -> tuple:
     return actions
 
 
-def get_all_max(full_list):
+def get_all_max(full_list: list) -> list:
     max_value = max(full_list)
     max_indexes = []
     for index, item in enumerate(full_list):
@@ -108,7 +107,7 @@ def get_all_max(full_list):
     return max_indexes
 
 
-def triangulation_for_triheatmap(M, N):
+def triangulation_for_triheatmap(M: int, N: int) -> list:
     # vertices of the little squares
     xv, yv = np.meshgrid(np.arange(-0.5, M), np.arange(-0.5, N))
     xc, yc = np.meshgrid(np.arange(0, M), np.arange(0, N)
@@ -128,7 +127,7 @@ def triangulation_for_triheatmap(M, N):
     return [Triangulation(x, y, triangles) for triangles in [trianglesN, trianglesE, trianglesS, trianglesW]]
 
 
-def transform_policy_to_matrix_values(policy_matrix):
+def transform_policy_to_matrix_values(policy_matrix: list) -> list:
     policy_matrix = np.array(policy_matrix)
     up_values = policy_matrix[:, :, 0]
     right_values = policy_matrix[:, :, 1]
@@ -137,7 +136,7 @@ def transform_policy_to_matrix_values(policy_matrix):
     return [up_values, right_values, down_values, left_values]
 
 
-def plot_matrix(M, N, values, title):
+def plot_matrix(M: int, N: int, values: list, title: str) -> None:
     values = np.array(values)
     triangul = triangulation_for_triheatmap(M, N)
     # cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
