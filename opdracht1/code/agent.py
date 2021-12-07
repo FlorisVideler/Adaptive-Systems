@@ -22,10 +22,8 @@ class Agent:
         Args:
             maze (Maze): The Maze to navigate in.
             policy (Policy): The policy to use.
-            start_position (tuple, optional): The start position of the Agent.
-            Defaults to (2, 3).
-            discount (int, optional): The discount that is used for
-            calculations. Defaults to 1.
+            start_position (tuple, optional): The start position of the Agent. Defaults to (2, 3).
+            discount (int, optional): The discount that is used for calculations. Defaults to 1.
         """
         self.maze: Maze = maze
         self.policy: Policy = policy
@@ -37,7 +35,17 @@ class Agent:
         self.value_function = self.generate_empty_value_function(
             maze.lenght, maze.height)
 
-    def generate_empty_value_function(self, lenght, height):
+    def generate_empty_value_function(self, lenght: int, height: int) -> list:
+        """
+        Generates an empty value function.
+
+        Args:
+            lenght (int): The lenght of the maze.
+            height (int): The height of the maze.
+
+        Returns:
+            list: The empty value function of the defined size.
+        """
         value_function = []
         for y in range(height):
             y_row = []
@@ -46,7 +54,17 @@ class Agent:
             value_function.append(y_row)
         return value_function
 
-    def generate_empty_q_function(self, lenght, height):
+    def generate_empty_q_function(self, lenght: int, height: int) -> list:
+        """
+        Generates an empty q function.
+
+        Args:
+            lenght (int): The lenght of the maze.
+            height (int): The height of the maze
+
+        Returns:
+            list: The empty q function of the defined size.
+        """
         q_function = []
         for y in range(height):
             y_row = []
@@ -70,7 +88,13 @@ class Agent:
         """
         return self.policy.select_action(state)
 
-    def generate_episode(self):
+    def generate_episode(self) -> tuple:
+        """
+        Generates an episode based on the current policy.
+
+        Returns:
+            tuple: A tuple with the states, actions and rewards as list.
+        """
         start_x, start_y = random.randrange(4), random.randrange(4)
         start_state = self.maze.maze[start_y][start_x]
         states_episode = [start_state]
@@ -88,16 +112,26 @@ class Agent:
             current_state = next_state
         return states_episode, action_episode, reward_episode
 
-    def first_visit_mc_prediction(self, max_episodes=10_000, threshold=0.01, converged_threshold=10):
-        local_value_function = self.generate_empty_value_function(
-            4, 4)
+    def first_visit_mc_prediction(self, max_episodes: int = 10_000, threshold: float = 0.01, converged_threshold: int = 10) -> list:
+        """
+        The first-visit Monte Carlo prediction algortihm.
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+
+        Returns:
+            list: The value function.
+        """
+        local_value_function = self.generate_empty_value_function(4, 4)
         maze_positions_flat = [s.location for s in list(
             np.array(self.maze.maze).flatten())]
         empty_lists = [[] for _ in range(len(maze_positions_flat))]
         returns = dict(zip(maze_positions_flat, empty_lists))
         converged_count = 0
         for i in range(max_episodes):
-            states_episode, action_episode, reward_episode = self.generate_episode()
+            states_episode, _, reward_episode = self.generate_episode()
             delta = 0
             if not states_episode[0].done:
                 g = 0
@@ -124,13 +158,25 @@ class Agent:
 
             if converged:
                 print(f'Stopped after {i-converged_threshold} episodes.')
-                print(np.array(local_value_function))
                 break
         if not converged:
             print(f'Did not converge within {max_episodes} episodes.')
         print(np.array(local_value_function))
+        return local_value_function
 
-    def tabular_td(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, alpha=0.1):
+    def tabular_td(self, max_episodes: int = 10_000, threshold: float = 0.01, converged_threshold: int = 10, alpha: float = 0.1) -> list:
+        """
+        The tabular algorithm.
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+            alpha (float, optional): The alhpa to use. Defaults to 0.1.
+
+        Returns:
+            list: The value function
+        """
         local_value_function = self.generate_empty_value_function(4, 4)
         converged_count = 0
         for i in range(max_episodes):
@@ -164,11 +210,25 @@ class Agent:
                 break
 
         if not converged:
-            print(f'Delta did not become small enough in {max_episodes} episodes')
+            print(
+                f'Delta did not become small enough in {max_episodes} episodes')
 
         print(np.array(local_value_function))
+        return local_value_function
 
-    def on_policy_first_vist_mc(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, epsilon=0.1):
+    def on_policy_first_vist_mc(self, max_episodes: int = 10_000, threshold: float = 0.01, converged_threshold: int = 10, epsilon: float = 0.1) -> list:
+        """
+        The on policy first-visit Monte Carlo control.
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+            epsilon (float, optional): The epsilon to use. Defaults to 0.1.
+
+        Returns:
+            list: The qfunction.
+        """
         maze_positions_flat = [s.location for s in list(
             np.array(self.maze.maze).flatten())]
         returns_list = []
@@ -218,10 +278,24 @@ class Agent:
                 break
 
         if not converged:
-            print(f'Delta did not become small enough in {max_episodes} episodes')
+            print(
+                f'Delta did not become small enough in {max_episodes} episodes')
         return q_function
 
-    def sarsa(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, alpha=0.1, epsilon=0.1):
+    def sarsa(self, max_episodes: int = 10_000, threshold: float = 0.01, converged_threshold: int = 10, alpha: float = 0.1, epsilon: float = 0.1) -> list:
+        """
+        The sarsa algorithm
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+            alpha (float, optional): The alhpa to use. Defaults to 0.1.
+            epsilon (float, optional): The epsilon to use. Defaults to 0.1.
+
+        Returns:
+            list: The qfunction.
+        """
         q_function = self.generate_empty_q_function(4, 4)
         converged_count = 0
         for i in range(max_episodes):
@@ -258,10 +332,24 @@ class Agent:
                 break
 
         if not converged:
-            print(f'Delta did not become small enough in {max_episodes} episodes')
+            print(
+                f'Delta did not become small enough in {max_episodes} episodes')
         return q_function
 
-    def q_learning(self, max_episodes=10_000, threshold=0.1, converged_threshold=10, alpha=0.1, epsilon=0.1):
+    def q_learning(self, max_episodes: int = 10_000, threshold: float = 0.1, converged_threshold: int = 10, alpha: float = 0.1, epsilon: float = 0.1) -> list:
+        """
+        The q-learning algorithm.
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+            alpha (float, optional): The alhpa to use. Defaults to 0.1.
+            epsilon (float, optional): The epsilon to use. Defaults to 0.1.
+
+        Returns:
+            list: The qfunction.
+        """
         q_function = self.generate_empty_q_function(4, 4)
         converged_count = 0
         for i in range(max_episodes):
@@ -296,10 +384,24 @@ class Agent:
                 break
 
         if not converged:
-            print(f'Delta did not become small enough in {max_episodes} episodes')
+            print(
+                f'Delta did not become small enough in {max_episodes} episodes')
         return q_function
 
-    def double_q_learning(self, max_episodes=10_000, threshold=0.1, converged_threshold=10, alpha=0.1, epsilon=0.1):
+    def double_q_learning(self, max_episodes: int = 10_000, threshold: float = 0.1, converged_threshold: int = 10, alpha: float = 0.1, epsilon: float = 0.1) -> tuple:
+        """
+        The double qlearning algorithm.
+
+        Args:
+            max_episodes (int, optional): The max amount of episodes to run. Defaults to 10_000.
+            threshold (float, optional): The threshold for when to stop. Defaults to 0.01.
+            converged_threshold (int, optional): The amount of times the threshold has to be reached. Defaults to 10.
+            alpha (float, optional): The alhpa to use. Defaults to 0.1.
+            epsilon (float, optional): The epsilon to use. Defaults to 0.1.
+
+        Returns:
+            tuple: both qfunctions
+        """
         q_function_1 = self.generate_empty_q_function(4, 4)
         q_function_2 = self.generate_empty_q_function(4, 4)
         converged_count = 0
@@ -343,7 +445,8 @@ class Agent:
                 break
 
         if not converged:
-            print(f'Delta did not become small enough in {max_episodes} episodes')
+            print(
+                f'Delta did not become small enough in {max_episodes} episodes')
         return q_function_1, q_function_2
 
     def value_iteration(self) -> None:
@@ -379,7 +482,10 @@ class Agent:
 
         print(f'Done after {c} sweeps!\n')
 
-    def update_policy_to_deterministic(self):
+    def update_policy_to_deterministic(self) -> None:
+        """
+        Updates the policy.
+        """
         new_policy = copy.deepcopy(self.policy.policy_matrix)
 
         for y, y_row in enumerate(new_policy):
