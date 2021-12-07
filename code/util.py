@@ -204,4 +204,5 @@ def plot_matrix(M: int, N: int, values: list, title: str) -> None:
     ax.set_aspect('equal', 'box')  # square cells
     plt.title(title)
     plt.tight_layout()
+    plt.rcParams['figure.figsize'] = [8, 8]
     plt.show()
