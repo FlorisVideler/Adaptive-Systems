@@ -190,7 +190,7 @@ class Agent:
                 returns_list.append((position, legal_action))
         empty_lists = [[] for _ in range(len(returns_list))]
         returns = dict(zip(returns_list, empty_lists))
-
+        converged_count = 0
         q_function = self.generate_empty_q_function(4, 4)
 
         all_routes = []
