@@ -85,7 +85,18 @@ def max_bellman(discount: float, states: list, value_function) -> tuple:
     return max(all_results), all_results.index(max(all_results))
 
 
-def all_max_bellman(discount: float, states: list, value_function) -> tuple:
+def all_max_bellman(discount: float, states: list, value_function) -> list:
+    """
+    Gets the max actions from a list with bellman.
+
+    Args:
+        discount (float): The discount to use.
+        states (list): A list with states.
+        value_function ([type]): The value function.
+
+    Returns:
+        list: List with the best actions.
+    """
     all_results = []
     for state in states:
         x, y = state.location
@@ -99,6 +110,15 @@ def all_max_bellman(discount: float, states: list, value_function) -> tuple:
 
 
 def get_all_max(full_list: list) -> list:
+    """
+    Gets all the max values from a list and returns their index.
+
+    Args:
+        full_list (list): The input list.
+
+    Returns:
+        list: The indexes with the heighest value.
+    """
     max_value = max(full_list)
     max_indexes = []
     for index, item in enumerate(full_list):
@@ -108,6 +128,16 @@ def get_all_max(full_list: list) -> list:
 
 
 def triangulation_for_triheatmap(M: int, N: int) -> list:
+    """
+    Generate a heightmap.
+
+    Args:
+        M (int): Lenght.
+        N (int): Height.
+
+    Returns:
+        list: List with the right values and positions.
+    """
     # vertices of the little squares
     xv, yv = np.meshgrid(np.arange(-0.5, M), np.arange(-0.5, N))
     xc, yc = np.meshgrid(np.arange(0, M), np.arange(0, N)
@@ -128,6 +158,15 @@ def triangulation_for_triheatmap(M: int, N: int) -> list:
 
 
 def transform_policy_to_matrix_values(policy_matrix: list) -> list:
+    """
+    Transforms list to list to plot in heatmap.
+
+    Args:
+        policy_matrix (list): The matrix to plot.
+
+    Returns:
+        list: The lists in the right order.
+    """
     policy_matrix = np.array(policy_matrix)
     up_values = policy_matrix[:, :, 0]
     right_values = policy_matrix[:, :, 1]
@@ -137,10 +176,17 @@ def transform_policy_to_matrix_values(policy_matrix: list) -> list:
 
 
 def plot_matrix(M: int, N: int, values: list, title: str) -> None:
+    """
+    Plots matrix as heatmap
+
+    Args:
+        M (int): Height.
+        N (int): Lenght.
+        values (list): Values to plot.
+        title (str): Title of the plot.
+    """
     values = np.array(values)
     triangul = triangulation_for_triheatmap(M, N)
-    # cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
-    # norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
     fig, ax = plt.subplots()
     imgs = [ax.tripcolor(t, val.ravel(), cmap='RdYlGn', vmin=0, vmax=1, ec='white')
             for t, val in zip(triangul, values)]
