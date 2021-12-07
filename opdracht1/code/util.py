@@ -99,20 +99,20 @@ def all_max_bellman(discount: float, states: list, value_function) -> tuple:
     return actions
 
 
-def get_all_max(l):
-    max_value = max(l)
+def get_all_max(full_list):
+    max_value = max(full_list)
     max_indexes = []
-    for index, item in enumerate(l):
+    for index, item in enumerate(full_list):
         if item == max_value:
             max_indexes.append(index)
     return max_indexes
-        
-
 
 
 def triangulation_for_triheatmap(M, N):
-    xv, yv = np.meshgrid(np.arange(-0.5, M), np.arange(-0.5, N))  # vertices of the little squares
-    xc, yc = np.meshgrid(np.arange(0, M), np.arange(0, N))  # centers of the little squares
+    # vertices of the little squares
+    xv, yv = np.meshgrid(np.arange(-0.5, M), np.arange(-0.5, N))
+    xc, yc = np.meshgrid(np.arange(0, M), np.arange(0, N)
+                         )  # centers of the little squares
     x = np.concatenate([xv.ravel(), xc.ravel()])
     y = np.concatenate([yv.ravel(), yc.ravel()])
     cstart = (M + 1) * (N + 1)  # indices of the centers
@@ -137,24 +137,26 @@ def transform_policy_to_matrix_values(policy_matrix):
     return [up_values, right_values, down_values, left_values]
 
 
-def plot_matrix(M, N, values):
+def plot_matrix(M, N, values, title):
     values = np.array(values)
     triangul = triangulation_for_triheatmap(M, N)
-    cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
-    norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
+    # cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
+    # norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
     fig, ax = plt.subplots()
     imgs = [ax.tripcolor(t, val.ravel(), cmap='RdYlGn', vmin=0, vmax=1, ec='white')
-        for t, val in zip(triangul, values)]
+            for t, val in zip(triangul, values)]
     for val, dir in zip(values, [(-1, 0), (0, 1), (1, 0), (0, -1)]):
         for i in range(M):
             for j in range(N):
                 v = val[j, i]
-                ax.text(i + 0.3 * dir[1], j + 0.3 * dir[0], f'{v:.2f}', color='k' if 0.2 < v < 0.8 else 'w', ha='center', va='center')
-    cbar = fig.colorbar(imgs[0], ax=ax)
+                ax.text(i + 0.3 * dir[1], j + 0.3 * dir[0],
+                        f'{v:.2f}', color='k' if 0.2 < v < 0.8 else 'w', ha='center', va='center')
+    fig.colorbar(imgs[0], ax=ax)
     ax.set_xticks(range(M))
     ax.set_yticks(range(N))
     ax.invert_yaxis()
     ax.margins(x=0, y=0)
     ax.set_aspect('equal', 'box')  # square cells
+    plt.title(title)
     plt.tight_layout()
     plt.show()
