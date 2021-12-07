@@ -1,6 +1,6 @@
 import random
 from state import State
-from util import (get_positions_around, get_possible_states, all_max_bellman, get_all_max)
+from util import get_all_max
 
 
 # TODO: Make policy save a value function that picks randomly.
@@ -83,4 +83,5 @@ class Policy:
         """
         Resets the policy.
         """
-        self.policy_matrix = self.generate_random_matrix(self.lenght, self.height)
+        self.policy_matrix = self.generate_random_matrix(
+            self.lenght, self.height)
