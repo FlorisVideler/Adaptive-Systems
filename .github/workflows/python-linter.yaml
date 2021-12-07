@@ -21,8 +21,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with flake8
         run: |
-          flake8 opdracht1/code --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 opdracht1/code --count --max-complexity=10 --max-line-length=999 --statistics
+          flake8 code --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 code --count --max-complexity=10 --max-line-length=999 --statistics
       # - name: Lint with Pylint
       #   run: |
       #     pylint opdracht1/code
