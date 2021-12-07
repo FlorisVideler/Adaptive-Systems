@@ -10,7 +10,7 @@ class Policy:
     but kept like this for later use.
     """
 
-    def __init__(self, lenght, height, greedy=True) -> None:
+    def __init__(self, lenght: int, height: int, greedy=True) -> None:
         # up ,right, down, left
         self.greedy = greedy
         self.legal_actions = [0, 1, 2, 3]
@@ -18,7 +18,17 @@ class Policy:
         self.height = height
         self.policy_matrix = self.generate_random_matrix(lenght, height)
 
-    def generate_random_matrix(self, lenght, height):
+    def generate_random_matrix(self, lenght: int, height: int) -> list:
+        """
+        Generates a random policy matrix.
+
+        Args:
+            lenght (int): The lenght of the matrix.
+            height (int): The height of the matrix
+
+        Returns:
+            list: The matrix.
+        """
         policy_matrix = []
         for y in range(height):
             y_row = []
@@ -30,18 +40,15 @@ class Policy:
             policy_matrix.append(y_row)
         return policy_matrix
 
-    def select_action(self, state):
+    def select_action(self, state: State) -> int:
         """
         Selects an action based on a State.
 
         Args:
-            maze (List): The maze to use.
             state (State): The state to base the action on.
-            discount (float): the discount value to use in calculations.
 
         Returns:
-            tuple: The best step (value, index).
-            The index corresponds with the action.
+            int: The best action.
         """
         x, y = state.location
         action_chances = self.policy_matrix[y][x]
@@ -50,13 +57,15 @@ class Policy:
         else:
             return random.choices(self.legal_actions, action_chances)[0]
 
-    def select_actions(self, maze: list, state: State, discount: float) -> int:
-        surrounding_positions = get_positions_around(state.location)
-        possible_states = get_possible_states(maze, surrounding_positions)
-        best_steps = all_max_bellman(discount, possible_states)
-        return best_steps
+    def update_policy(self, state: State, q_function: list, epsilon: float) -> None:
+        """
+        Updates the policy.
 
-    def update_policy(self, state, q_function, epsilon):
+        Args:
+            state (State): The current state.
+            q_function (list): The current qfunction.
+            epsilon (float): The epsilon to use.
+        """
         x, y = state.location
         max_value = max(q_function[y][x])
         best_action = q_function[y][x].index(max_value)
@@ -70,6 +79,8 @@ class Policy:
                 chance = epsilon / len(q_function[y][x])
             self.policy_matrix[y][x][action] = chance
 
-    def reset_policy(self):
-        self.policy_matrix = self.generate_random_matrix(
-            self.lenght, self.height)
+    def reset_policy(self) -> None:
+        """
+        Resets the policy.
+        """
+        self.policy_matrix = self.generate_random_matrix(self.lenght, self.height)
