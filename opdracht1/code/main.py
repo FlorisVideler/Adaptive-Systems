@@ -36,20 +36,20 @@ agent.simulate()
 agent.visualize()
 
 
-# print('Monte Carlo first visit; policy = random; discount = 1; 10000 episodes')
-# agent.policy = random_policy
-# agent.first_visit_mc_prediction()
-# print('\n')
+print('Monte Carlo first visit; policy = random; discount = 1; 10000 episodes')
+agent.policy = random_policy
+agent.first_visit_mc_prediction()
+print('\n')
 # print('Monte Carlo first visit; policy = random; discount = 0.9; 10000 episodes')
 # agent.discount = 0.9
 # agent.first_visit_mc_prediction()
 # print('\n')
 
-# print('Monte Carlo first visit = optimal; discount = 1; 10000 episodes')
-# agent.policy = optimal_policy
-# agent.discount = 1
-# agent.first_visit_mc_prediction()
-# print('\n')
+print('Monte Carlo first visit = optimal; discount = 1; 10000 episodes')
+agent.policy = optimal_policy
+agent.discount = 1
+agent.first_visit_mc_prediction()
+print('\n')
 # print('Monte Carlo first visit; policy = optimal; discount = 0.9; 10000 episodes')
 # agent.discount = 0.9
 # agent.first_visit_mc_prediction()
@@ -106,11 +106,21 @@ agent.visualize()
 # plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
 
 
-agent.policy.reset_policy()
-agent.policy = random_policy
-agent.discount = 1
-qf = agent.q_learning()
+# agent.policy.reset_policy()
+# agent.policy = random_policy
+# agent.discount = 1
+# qf = agent.q_learning()
 
-plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
-plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf))
+
+
+# agent.policy.reset_policy()
+# agent.policy = random_policy
+# agent.discount = 1
+# qf = agent.double_q_learning()
+
+# plot_matrix(4, 4, transform_policy_to_matrix_values(agent.policy.policy_matrix))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf[0]))
+# plot_matrix(4, 4, transform_policy_to_matrix_values(qf[1]))
 

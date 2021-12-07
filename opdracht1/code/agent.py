@@ -96,18 +96,18 @@ class Agent:
         return states_episode, action_episode, reward_episode
 
     # Add policy as parameter?
-    def first_visit_mc_prediction(self, amount_of_episodes=10_000):
+    def first_visit_mc_prediction(self, max_episodes=10_000, threshold=0.01, converged_threshold=10):
         local_value_function = self.generate_empty_value_function(
-            4, 4)  # copy.deepcopy(self.value_function)
-        # print(type(local_value_function[0]))
-        # print(np.array(local_value_function))
+            4, 4) 
         maze_positions_flat = [s.location for s in list(
             np.array(self.maze.maze).flatten())]
         empty_lists = [[] for _ in range(len(maze_positions_flat))]
         returns = dict(zip(maze_positions_flat, empty_lists))
-        for i in range(amount_of_episodes):
+        converged_count = 0
+        tmp = False
+        for i in range(max_episodes):
             states_episode, action_episode, reward_episode = self.generate_episode()
-            # print(len(states_episode), len(reward_episode))
+            delta = 0
             if not states_episode[0].done:
                 g = 0
                 for t in range(len(states_episode)-1, -1, -1):
@@ -116,16 +116,37 @@ class Agent:
                     if current_state not in states_episode[:t]:
                         x, y = current_state.location
                         returns[current_state.location].append(g)
-                        local_value_function[y][x] = sum(
+                        new_value = sum(
                             returns[current_state.location]) / len(returns[current_state.location])
-                    # self.maze.maze = values
+                        old_value = local_value_function[y][x]
+                        delta = max(delta, abs(old_value - new_value))
+                        local_value_function[y][x] = new_value
+            
+            converged = False
+
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                # if not tmp:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                print(np.array(local_value_function))
+                # tmp = True
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes.')
+        # print(i)
         print(np.array(local_value_function))
         # print(local_value_function)
 
-    def tabular_td(self, amount_of_episodes=10_000, alpha=0.1):
+    def tabular_td(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, alpha=0.1):
         local_value_function = self.generate_empty_value_function(4, 4)
-
-        for i in range(amount_of_episodes):
+        converged_count = 0
+        for i in range(max_episodes):
+            delta = 0
             start_x, start_y = random.randrange(4), random.randrange(4)
             current_state = self.maze.maze[start_y][start_x]
             while not current_state.done:
@@ -134,12 +155,33 @@ class Agent:
                 reward = next_state.reward
                 x_current_state, y_current_state = current_state.location
                 x_next_state, y_next_state = next_state.location
-                local_value_function[y_current_state][x_current_state] = local_value_function[y_current_state][x_current_state] + alpha * (
+                old_value = local_value_function[y_current_state][x_current_state]
+                new_value = local_value_function[y_current_state][x_current_state] + alpha * (
                     reward + self.discount * local_value_function[y_next_state][x_next_state] - local_value_function[y_current_state][x_current_state])
+                delta = max(delta, abs(old_value - new_value))
+                local_value_function[y_current_state][x_current_state] = new_value
                 current_state = next_state
+            
+            converged = False
+
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                # print(np.array(local_value_function))
+                break
+
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes')
+            
         print(np.array(local_value_function))
 
-    def on_policy_first_vist_mc(self, amount_of_episodes=100_000, epsilon=0.1):
+    def on_policy_first_vist_mc(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, epsilon=0.1):
         maze_positions_flat = [s.location for s in list(
             np.array(self.maze.maze).flatten())]
         returns_list = []
@@ -151,8 +193,12 @@ class Agent:
 
         q_function = self.generate_empty_q_function(4, 4)
 
-        for i in range(amount_of_episodes):
+        all_routes = []
+
+        for i in range(max_episodes):
             states_episode, action_episode, reward_episode = self.generate_episode()
+            all_routes.append(len(states_episode))
+            delta = 0
             if not states_episode[0].done:
                 g = 0
                 for t in range(len(states_episode)-1, -1, -1):
@@ -162,7 +208,10 @@ class Agent:
                     if current_state not in states_episode[:t] and current_action not in action_episode[:t]:
                         returns[current_state.location, current_action].append(g)
                         x_current_state, y_current_state = current_state.location
-                        q_function[y_current_state][x_current_state][current_action] = sum(returns[current_state.location, current_action]) / len( returns[current_state.location, current_action])
+                        old_value = q_function[y_current_state][x_current_state][current_action]
+                        new_value = sum(returns[current_state.location, current_action]) / len( returns[current_state.location, current_action])
+                        delta = max(delta, abs(old_value - new_value))
+                        q_function[y_current_state][x_current_state][current_action] = new_value
                         
                         self.policy.update_policy(current_state, q_function, epsilon)
                         
@@ -174,36 +223,72 @@ class Agent:
                         #     else:
                         #         chance = epsilon / len(q_function[y_current_state][x_current_state])
                         #     self.policy.policy_matrix[y_current_state][x_current_state][action] = chance
-        print(np.array(self.policy.policy_matrix))
+
+            converged = False
+
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                # print(np.array(local_value_function))
+                break
+
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes')
         return q_function
 
     
-    def sarsa(self, amount_of_episodes=200_000, alpha=0.1, epsilon=0.1):
+    def sarsa(self, max_episodes=10_000, threshold=0.01, converged_threshold=10, alpha=0.1, epsilon=0.1):
         q_function = self.generate_empty_q_function(4, 4)
-
-        for i in range(amount_of_episodes):
+        converged_count = 0
+        for i in range(max_episodes):
             start_x, start_y = random.randrange(4), random.randrange(4)
             current_state = self.maze.maze[start_y][start_x]
             self.policy.update_policy(current_state, q_function, epsilon)
             current_action = self.pick_action(current_state)
+            delta = 0
             while not current_state.done:
                 next_state = self.maze.do_step(current_state, current_action)
                 x_current_state, y_current_state = current_state.location
                 x_next_state, y_next_state = next_state.location
                 reward = next_state.reward
                 next_action = self.pick_action(next_state)
-                # print(next_action)
-                q_function[y_current_state][x_current_state][current_action] = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * q_function[y_next_state][x_next_state][next_action] - q_function[y_current_state][x_current_state][current_action])
+                old_value = q_function[y_current_state][x_current_state][current_action]
+                new_value = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * q_function[y_next_state][x_next_state][next_action] - q_function[y_current_state][x_current_state][current_action])
+                delta = max(delta, abs(old_value - new_value))
+                q_function[y_current_state][x_current_state][current_action] = new_value
                 current_state = next_state
                 current_action = next_action
             # print(i)
+            converged = False
+
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                # print(np.array(local_value_function))
+                break
+
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes')
         return q_function
 
     
-    def q_learning(self, amount_of_episodes=100_000, alpha=0.1, epsilon=0.1):
+    def q_learning(self, max_episodes=10_000, threshold=0.1, converged_threshold=10, alpha=0.1, epsilon=0.1):
         q_function = self.generate_empty_q_function(4, 4)
-
-        for i in range(amount_of_episodes):
+        converged_count = 0
+        for i in range(max_episodes):
+            delta = 0
             start_x, start_y = random.randrange(4), random.randrange(4)
             current_state = self.maze.maze[start_y][start_x]
             while not current_state.done:
@@ -213,30 +298,75 @@ class Agent:
                 x_current_state, y_current_state = current_state.location
                 x_next_state, y_next_state = next_state.location
                 reward = next_state.reward
-                q_function[y_current_state][x_current_state][current_action] = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * max(q_function[y_next_state][x_next_state]) - q_function[y_current_state][x_current_state][current_action])
+                old_value = q_function[y_current_state][x_current_state][current_action]
+                new_value = q_function[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * max(q_function[y_next_state][x_next_state]) - q_function[y_current_state][x_current_state][current_action])
+                delta = delta = max(delta, abs(old_value - new_value))
+                q_function[y_current_state][x_current_state][current_action] = new_value
                 current_state = next_state
+        
+            converged = False
+
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                # print(np.array(local_value_function))
+                break
+
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes')
         return q_function
 
 
-    def double_q_learning(self, amount_of_episodes=10_000, alpha=0.1, epsilon=0.1):
+    def double_q_learning(self, max_episodes=10_000, threshold=0.1, converged_threshold=10, alpha=0.1, epsilon=0.1):
         q_function_1 = self.generate_empty_q_function(4, 4)
         q_function_2 = self.generate_empty_q_function(4, 4)
-
-        for i in range(amount_of_episodes):
+        converged_count = 0
+        for i in range(max_episodes):
             start_x, start_y = random.randrange(4), random.randrange(4)
             current_state = self.maze.maze[start_y][start_x]
+            delta = 0
             while not current_state.done:
-                self.policy.update_policy(current_state, np.array(q_function_1) + np.array(q_function_2), epsilon)
+                q_funtion_sum = np.array(q_function_1) + np.array(q_function_2)
+                q_funtion_sum = q_funtion_sum.tolist()
+                self.policy.update_policy(current_state, q_funtion_sum, epsilon)
                 current_action = self.pick_action(current_state)
                 next_state = self.maze.do_step(current_state, current_action)
                 x_current_state, y_current_state = current_state.location
                 x_next_state, y_next_state = next_state.location
                 reward = next_state.reward
                 if random.random() < 0.5:
-                    pass
+                    old_value = q_function_1[y_current_state][x_current_state][current_action]
+                    new_value = q_function_1[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * q_function_2[y_next_state][x_next_state][q_function_1[y_next_state][x_next_state].index(max(q_function_1[y_next_state][x_next_state]))] - q_function_1[y_current_state][x_current_state][current_action])
+                    q_function_1[y_current_state][x_current_state][current_action] = new_value
                 else:
-                    pass
+                    old_value = q_function_2[y_current_state][x_current_state][current_action]
+                    new_value = q_function_2[y_current_state][x_current_state][current_action] + alpha * (reward + self.discount * q_function_1[y_next_state][x_next_state][q_function_2[y_next_state][x_next_state].index(max(q_function_2[y_next_state][x_next_state]))] - q_function_2[y_current_state][x_current_state][current_action])
+                    q_function_2[y_current_state][x_current_state][current_action] = new_value
+                delta = max(delta, abs(old_value - new_value))
+                current_state = next_state
+            converged = False
 
+            if delta < threshold:
+                converged_count += 1
+                if converged_count == converged_threshold:
+                    converged = True
+            else:
+                converged_count = 0
+
+            if converged:
+                print(f'Stopped after {i-converged_threshold} episodes.')
+                # print(np.array(local_value_function))
+                break
+
+        if not converged:
+            print(f'Did not converge within {max_episodes} episodes')
+        return q_function_1, q_function_2
 
                         
 
