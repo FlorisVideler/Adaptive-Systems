@@ -42,4 +42,4 @@ The code contains 3 classes, 1 dataclass, 1 utility functions file and 1 file to
 - Utility functions (util.py): Has a couple of helper functions that are used multiple times.
 
 ## Results
-Can be found in the [notebook]()
+Can be found in the [notebook](https://github.com/FlorisVideler/Adaptive-Systems/blob/main/code/demo.ipynb) or you can download the [HTML](https://github.com/FlorisVideler/Adaptive-Systems/blob/main/code/demo.html)
