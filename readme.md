@@ -43,3 +43,6 @@ The code contains 3 classes, 1 dataclass, 1 utility functions file and 1 file to
 
 ## Results
 Can be found in the [notebook](https://github.com/FlorisVideler/Adaptive-Systems/blob/main/code/demo.ipynb) or you can download the [HTML](https://github.com/FlorisVideler/Adaptive-Systems/blob/main/code/demo.html)
+
+## Limitations
+All the algoriths work as expected and give correct outcomes. However the calculation of when a algorithm is done, using delta's is not working the full 100%. The reason for not fixing this is that this is nowhere near the mail assignment and there are other courses that cost time.
