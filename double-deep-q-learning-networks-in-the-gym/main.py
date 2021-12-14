@@ -32,3 +32,5 @@ for i_episode in range(amount_of_episodes):
             break
     agent.learn(64)    
 env.close()
+
+agent.policy_network.save()

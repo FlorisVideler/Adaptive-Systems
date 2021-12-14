@@ -15,5 +15,8 @@ class FunctionApproximator:
         print(x.shape, y.shape)
         return self.model.fit(x, y)
 
+    def save(self, location='models/modelv1.h5'):
+        self.model.save(location)
+
     def __str__(self):
         return "...."
