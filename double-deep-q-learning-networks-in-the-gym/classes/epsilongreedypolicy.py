@@ -12,9 +12,9 @@ class EpsilonGreedyPolicy:
             action = np.random.choice(self.actions)
         else:
             q_values = model.predict(np.array([state])) # output Q(s,a) for all a of current state
-            print(q_values[0])
+            # print(q_values[0])
             action = np.argmax(q_values[0]) # because the output is m * n, so we need to consider the dimension [0]
-            print(action)
+            # print(action)
         return action
 
     def __str__(self):
