@@ -1,6 +1,7 @@
 from os import stat
 from classes.memory import Memory
 from classes.functionapproximator import FunctionApproximator
+from classes.epsilongreedypolicy import EpsilonGreedyPolicy
 import copy
 from random import sample
 import numpy as np
@@ -8,7 +9,7 @@ import tensorflow as tf
 
 
 class Agent:
-    def __init__(self, memory_size, gamma, alpha, epsilon) -> None:
+    def __init__(self, n_actions, memory_size, gamma, alpha, epsilon, min_epsilon, epsilon_decay) -> None:
         self.gamma = gamma     
         self.alpha = alpha
         self.epsilon = epsilon
@@ -16,6 +17,7 @@ class Agent:
         self.memory = Memory(memory_size)
         self.policy_network = FunctionApproximator()
         self.target_network = FunctionApproximator()
+        self.policy = EpsilonGreedyPolicy(n_actions, epsilon, min_epsilon, epsilon_decay)
 
     def learn(self, sample_size):
         sample_size = min(len(self.memory.transitions), sample_size)
@@ -44,6 +46,7 @@ class Agent:
         # print(targets.shape, next_states.shape)
         #TODO: Next state of state?
         self.policy_network.train(states, targets)
+        self.policy.epsilon_decay()
 
     def copy_model(self, tau=1):
         amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
