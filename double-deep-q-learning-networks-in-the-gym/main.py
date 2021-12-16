@@ -13,7 +13,7 @@ epsilon = 1
 min_epsilon = 0.05
 epsilon_decay = 0.95
 
-amount_of_episodes = 200
+amount_of_episodes = 10
 max_steps = 1_000
 
 memory_size = 10_000
@@ -44,7 +44,7 @@ for i_episode in range(amount_of_episodes):
     rewards.append(total_reward)
 env.close()
 
-agent.policy_network.save()
+agent.save_models()
 
 
 plt.plot([i for i in range(amount_of_episodes)], rewards)
