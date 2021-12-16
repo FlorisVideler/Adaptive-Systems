@@ -1,3 +1,4 @@
+from os import stat
 from classes.memory import Memory
 from classes.functionapproximator import FunctionApproximator
 import copy
@@ -21,23 +22,28 @@ class Agent:
         batch = self.memory.sample(sample_size)
 
         targets = []
-        next_states = []
+        states = []
         for transition in batch:
             next_state = transition.next_state
-            next_states.append(next_state)
+            state = transition.state
+            action = transition.action
+            states.append(next_state)
             best_action = np.argmax(self.policy_network.model.predict(np.array([next_state]))[0])
             if not transition.done:
                 q_value_best_action = self.target_network.model.predict(np.array([next_state]))[0][best_action]
             else:
                 q_value_best_action = 0
             target = transition.reward + self.gamma * q_value_best_action
-            targets.append(np.array([target]))
-        
+            
+            current_predictions = self.policy_network.model.predict(np.array([state]))[0]
+            current_predictions[action] = target
+            targets.append(np.array([current_predictions]))
+
         targets = np.array(targets)
-        next_states = np.array(next_states)
+        states = np.array(states)
         # print(targets.shape, next_states.shape)
         #TODO: Next state of state?
-        self.policy_network.train(next_states, targets)
+        self.policy_network.train(states, targets)
 
     def copy_model(self, tau=1):
         amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
