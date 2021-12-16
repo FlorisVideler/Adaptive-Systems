@@ -32,5 +32,8 @@ class FunctionApproximator:
     def load_weights(self, new_weights):
         print(self.model.weights)
 
+    def load_model(self, location):
+        self.model = tf.keras.models.load_model(location)
+
     def __str__(self):
         return "...."

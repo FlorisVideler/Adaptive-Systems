@@ -11,9 +11,9 @@ env.reset()
 tau = 0.8
 epsilon = 1
 min_epsilon = 0.05
-epsilon_decay = 0.95
+epsilon_decay = 0.99
 
-amount_of_episodes = 1
+amount_of_episodes = 1_000
 max_steps = 1_000
 
 memory_size = 10_000
