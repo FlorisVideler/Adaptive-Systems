@@ -13,7 +13,7 @@ epsilon = 1
 min_epsilon = 0.05
 epsilon_decay = 0.95
 
-amount_of_episodes = 10
+amount_of_episodes = 1
 max_steps = 1_000
 
 memory_size = 10_000

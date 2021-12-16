@@ -60,5 +60,5 @@ class Agent:
             self.target_network.model.layers[i_layer].set_weights(weights)
 
     def save_models(self):
-        self.policy_network.save(f'../models/policy-model-{time.strftime("%Y%m%d-%H%M%S")}')
-        self.target_network.save(f'../models/target-model-{time.strftime("%Y%m%d-%H%M%S")}')
+        self.policy_network.save(f'double-deep-q-learning-networks-in-the-gym/models/policy-model-{time.strftime("%Y%m%d-%H%M%S")}')
+        self.target_network.save(f'double-deep-q-learning-networks-in-the-gym/models/target-model-{time.strftime("%Y%m%d-%H%M%S")}')
