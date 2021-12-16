@@ -9,15 +9,16 @@ env = gym.make('LunarLander-v2')
 env.reset()
 
 tau = 0.8
+epsilon = 0.25
 
-amount_of_episodes = 20
+amount_of_episodes = 200
 max_steps = 1_000
 
-memory_size = 100_000
+memory_size = 10_000
 
-policy = EpsilonGreedyPolicy(env.action_space.n, 0.2)
+policy = EpsilonGreedyPolicy(env.action_space.n, epsilon)
 
-agent = Agent(memory_size, 0, 0, 0)
+agent = Agent(memory_size=memory_size, gamma=0.9, alpha=0.001, epsilon=epsilon)
 
 rewards = []
 
