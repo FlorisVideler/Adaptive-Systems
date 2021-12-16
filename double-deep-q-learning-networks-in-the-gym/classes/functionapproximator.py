@@ -26,7 +26,7 @@ class FunctionApproximator:
     def train(self, x, y):
         return self.model.fit(x, y)
 
-    def save(self, location='models/modelv1.h5'):
+    def save(self, location='models/model.h5'):
         self.model.save(location)
 
     def load_weights(self, new_weights):

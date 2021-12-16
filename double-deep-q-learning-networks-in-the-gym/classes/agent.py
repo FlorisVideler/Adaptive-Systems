@@ -6,6 +6,7 @@ import copy
 from random import sample
 import numpy as np
 import tensorflow as tf 
+import time
 
 
 class Agent:
@@ -57,5 +58,7 @@ class Agent:
             weights = self.target_network.model.layers[i_layer].get_weights()
             weights[0][i_node, i_weight] = new_weight.numpy()
             self.target_network.model.layers[i_layer].set_weights(weights)
-        
 
+    def save_models(self):
+        self.policy_network.save(f'../models/policy-model-{time.strftime("%Y%m%d-%H%M%S")}')
+        self.target_network.save(f'../models/target-model-{time.strftime("%Y%m%d-%H%M%S")}')
