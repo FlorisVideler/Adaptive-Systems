@@ -8,12 +8,12 @@ from classes.agent import Agent
 env = gym.make('LunarLander-v2')
 env.reset()
 
-tau = 0.8
+tau = 0.3
 epsilon = 1
-min_epsilon = 0.05
-epsilon_decay = 0.99
+min_epsilon = 0.4
+epsilon_decay = 0.996
 
-amount_of_episodes = 1_000
+amount_of_episodes = 2_500
 max_steps = 1_000
 
 memory_size = 10_000
@@ -27,7 +27,7 @@ for i_episode in range(amount_of_episodes):
     print(f'Episode {i_episode}')
     total_reward = 0
     for t in range(max_steps):
-        env.render()
+        # env.render()
         action = agent.policy.select_action(state, agent.policy_network.model)
         next_state, reward, done, info = env.step(action)
         total_reward += reward
@@ -35,6 +35,7 @@ for i_episode in range(amount_of_episodes):
         agent.memory.append_memory(transition)
         state = next_state
         if done:
+            print(reward)
             print("Episode finished after {} timesteps".format(t+1))
             break
     agent.learn(64)
