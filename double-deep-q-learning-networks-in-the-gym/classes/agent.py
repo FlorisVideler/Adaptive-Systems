@@ -51,7 +51,7 @@ class Agent:
         print(f'Epsilon: {self.policy.epsilon}')
 
     def copy_model(self, tau=1):
-        if tau == 1:
+        if tau >= 1:
             self.target_network.model.set_weights(self.policy_network.model.get_weights()) 
         amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
         indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
