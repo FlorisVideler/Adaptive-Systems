@@ -30,7 +30,7 @@ class Agent:
             next_state = transition.next_state
             state = transition.state
             action = transition.action
-            states.append(next_state)
+            states.append(state)
             best_action = np.argmax(self.policy_network.model.predict(np.array([next_state]))[0])
             if not transition.done:
                 q_value_best_action = self.target_network.model.predict(np.array([next_state]))[0][best_action]
@@ -47,7 +47,7 @@ class Agent:
         # print(targets.shape, next_states.shape)
         #TODO: Next state of state?
         self.policy_network.train(states, targets)
-        print(f'Epsilon: {self.policy.epsilon}')
+        # print(f'Epsilon: {self.policy.epsilon}')
 
     def copy_model(self, tau=1):
         if tau >= 1:
