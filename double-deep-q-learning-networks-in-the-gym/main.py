@@ -14,7 +14,7 @@ epsilon = 1
 min_epsilon = 0.01
 epsilon_decay = 0.996
 
-amount_of_episodes = 250
+amount_of_episodes = 100
 max_steps = 1_000
 
 memory_size = 10_000
@@ -38,12 +38,15 @@ for i_episode in range(amount_of_episodes):
         transition = Transition(state, action, reward, next_state, done)
         agent.memory.append_memory(transition)
         state = next_state
-        
+        if t % 10 == 0:
+            agent.learn(64)
         if done:
-            print(total_reward)
-            print("Episode finished after {} timesteps".format(t+1))
+            agent.learn(64)
+            agent.policy.decay_epsilon()
+            print(f"Total reward: {total_reward}")
+            print(f"Episode finished after {t} timesteps".format(t+1))
             break
-    agent.learn(64)
+    
     
     if i_episode % 10 == 0 and i_episode >  0:
         print(f'Copying policy to target {tau}')

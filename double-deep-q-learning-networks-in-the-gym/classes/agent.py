@@ -47,7 +47,6 @@ class Agent:
         # print(targets.shape, next_states.shape)
         #TODO: Next state of state?
         self.policy_network.train(states, targets)
-        self.policy.decay_epsilon()
         print(f'Epsilon: {self.policy.epsilon}')
 
     def copy_model(self, tau=1):
