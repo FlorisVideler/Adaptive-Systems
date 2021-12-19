@@ -47,20 +47,19 @@ class Agent:
         # print(targets.shape, next_states.shape)
         #TODO: Next state of state?
         self.policy_network.train(states, targets)
-        self.policy.decay_epsilon()
+        print(f'Epsilon: {self.policy.epsilon}')
 
     def copy_model(self, tau=1):
         if tau >= 1:
-            self.target_network.model.set_weights(self.policy_network.model.get_weights())
-        else:
-            amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
-            indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
-            for index_to_change in indexes_to_change:
-                i_layer, i_node, i_weight = index_to_change
-                new_weight = self.policy_network.model.layers[i_layer].weights[0][i_node][i_weight]
-                weights = self.target_network.model.layers[i_layer].get_weights()
-                weights[0][i_node, i_weight] = new_weight.numpy()
-                self.target_network.model.layers[i_layer].set_weights(weights)
+            self.target_network.model.set_weights(self.policy_network.model.get_weights()) 
+        amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
+        indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
+        for index_to_change in indexes_to_change:
+            i_layer, i_node, i_weight = index_to_change
+            new_weight = self.policy_network.model.layers[i_layer].weights[0][i_node][i_weight]
+            weights = self.target_network.model.layers[i_layer].get_weights()
+            weights[0][i_node, i_weight] = new_weight.numpy()
+            self.target_network.model.layers[i_layer].set_weights(weights)
 
     def save_models(self):
         self.policy_network.save(f'double-deep-q-learning-networks-in-the-gym/models/policy-model-{time.strftime("%Y%m%d-%H%M%S")}')
