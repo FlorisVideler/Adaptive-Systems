@@ -1,17 +1,18 @@
-import tensorflow as tf 
-from keras import layers, Sequential, optimizers
+import tensorflow as tf
+from keras import Sequential
+from keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
 
 
 class FunctionApproximator:
     def __init__(self):
         self.model = Sequential()
-        self.model.add(layers.Dense(32, input_shape=(8,), activation="relu"))
-        self.model.add(layers.Dense(32, activation="relu"))
-        self.model.add(layers.Dense(4, activation="linear"))
-        self.model.compile(optimizer=tf.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError())
+        self.model.add(Dense(128, input_shape=(8,), activation="relu"))
+        self.model.add(Dense(128, activation="relu"))
+        self.model.add(Dense(4, activation="linear"))
+        self.model.compile(optimizer=Adam(learning_rate=0.0001), loss="mse")
 
         self.indexes = self.calculate_indexes()
-
 
     def calculate_indexes(self):
         layers = self.model.layers

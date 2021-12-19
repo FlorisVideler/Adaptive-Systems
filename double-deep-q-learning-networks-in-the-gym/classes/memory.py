@@ -1,5 +1,4 @@
 from collections import deque
-from typing import Deque 
 from random import sample
 from classes.transition import Transition
 

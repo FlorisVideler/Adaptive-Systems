@@ -1,6 +1,5 @@
 import gym
 import matplotlib.pyplot as plt
-from numpy.lib.function_base import average
 
 from classes.transition import Transition
 from classes.agent import Agent
@@ -12,7 +11,7 @@ env.reset()
 tau = 1
 epsilon = 1
 min_epsilon = 0.05
-epsilon_decay = 0.95
+epsilon_decay = 0.995
 
 amount_of_episodes = 300
 max_steps = 1_000

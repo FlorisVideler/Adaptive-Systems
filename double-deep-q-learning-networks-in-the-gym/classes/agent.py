@@ -1,11 +1,8 @@
-from os import stat
 from classes.memory import Memory
 from classes.functionapproximator import FunctionApproximator
 from classes.epsilongreedypolicy import EpsilonGreedyPolicy
-import copy
 from random import sample
 import numpy as np
-import tensorflow as tf 
 import time
 
 
