@@ -17,7 +17,7 @@ class FunctionApproximator:
         self.model.add(Dense(128, input_dim=n_states, activation="relu"))
         self.model.add(Dense(128, activation="relu"))
         self.model.add(Dense(n_actions, activation="linear"))
-        self.model.compile(optimizer=Adam(learning_rate=0.001), loss="mse")
+        self.model.compile(optimizer=Adam(learning_rate=0.0005), loss="mse")
 
         self.indexes = self.calculate_indexes()
 

@@ -55,9 +55,9 @@ class Agent:
         # Wat is de beste actie?
 
         policy_next_states_best_actions = np.argmax(policy_next_states_predictions, axis=1)
-        f = lambda a: [a]
+        # f = lambda a: [a]
         # B
-        policy_next_states_best_actions = np.array(list(map(f, policy_next_states_best_actions)))
+        # policy_next_states_best_actions = np.array(list(map(f, policy_next_states_best_actions)))
 
 
         target_next_states_predictions = self.target_network.model.predict(sample_next_states)
@@ -65,8 +65,13 @@ class Agent:
         # Na de indexing? (A)
         target_next_states_predictions = target_next_states_predictions * (np.ones(shape = sample_dones.shape) - sample_dones)
 
-        m,n = target_next_states_predictions.shape
-        q_value_next_state_action = np.take(target_next_states_predictions, policy_next_states_best_actions + np.arange(m)[:,None])
+        # m,n = target_next_states_predictions.shape
+        # q_value_next_state_action = np.take(target_next_states_predictions, policy_next_states_best_actions + np.arange(m)[:,None])
+
+        q_value_next_state_action = np.ndarray(shape = (sample_size, 1))
+
+        for index_item, item in np.ndenumerate(policy_next_states_best_actions):
+            q_value_next_state_action[index_item] = target_next_states_predictions[index_item][item]
 
         for i in range(sample_size):
             a = sample_actions[i,0]

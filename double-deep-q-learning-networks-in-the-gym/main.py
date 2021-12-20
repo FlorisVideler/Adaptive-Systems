@@ -21,7 +21,7 @@ epsilon_decay = 0.996
 amount_of_episodes = 5_000
 max_steps = 1_000
 
-memory_size = 10_000
+memory_size = 100_000
 
 agent = Agent(n_actions=env.action_space.n, n_states=env.observation_space.shape[0], memory_size=memory_size, gamma=0.9, alpha=0.001, epsilon=epsilon, min_epsilon=min_epsilon, epsilon_decay=epsilon_decay)
 
@@ -47,7 +47,7 @@ for i_episode in range(amount_of_episodes):
         agent.memory.append_memory((state, action, reward, next_state, done))
 
         state = next_state
-        agent.learn(64)
+        agent.learn(96)
 
     agent.copy_model(tau)
 
