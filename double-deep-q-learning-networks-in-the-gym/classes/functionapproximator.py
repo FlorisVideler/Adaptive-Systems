@@ -1,16 +1,23 @@
-import tensorflow as tf
-from keras import Sequential
-from keras.layers import Dense
+# import tensorflow as tf
+# from keras import Sequential
+# from keras.layers import Dense
+# from tensorflow.keras.optimizers import Adam
+
+import tensorflow.compat.v1 as tf
+from tensorflow.keras import Model, Sequential
+from tensorflow.keras.layers import Dense, Embedding, Reshape
 from tensorflow.keras.optimizers import Adam
+
+tf.disable_v2_behavior() # testing on tensorflow 1
 
 
 class FunctionApproximator:
-    def __init__(self):
+    def __init__(self, n_states, n_actions):
         self.model = Sequential()
-        self.model.add(Dense(128, input_shape=(8,), activation="relu"))
+        self.model.add(Dense(128, input_dim=n_states, activation="relu"))
         self.model.add(Dense(128, activation="relu"))
-        self.model.add(Dense(4, activation="linear"))
-        self.model.compile(optimizer=Adam(learning_rate=0.005), loss="mse")
+        self.model.add(Dense(n_actions, activation="linear"))
+        self.model.compile(optimizer=Adam(learning_rate=0.001), loss="mse")
 
         self.indexes = self.calculate_indexes()
 
@@ -23,8 +30,8 @@ class FunctionApproximator:
                     indexes.append((layer, node, weight))
         return indexes
 
-    def train(self, x, y):
-        return self.model.fit(x, y)
+    # def train(self, x, y):
+    #     return self.model.fit(x, y)
 
     def save(self, location='models/model.h5'):
         self.model.save(location)
