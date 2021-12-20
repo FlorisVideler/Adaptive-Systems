@@ -10,10 +10,10 @@ env.reset()
 
 tau = 1
 epsilon = 1
-min_epsilon = 0.05
-epsilon_decay = 0.995
+min_epsilon = 0.08
+epsilon_decay = 0.998
 
-amount_of_episodes = 300
+amount_of_episodes = 2_000
 max_steps = 1_000
 
 memory_size = 10_000
@@ -45,8 +45,6 @@ for i_episode in range(amount_of_episodes):
             agent.learn(64)
             agent.policy.decay_epsilon()
             break
-    
-    
     if i_episode % 10 == 0 and i_episode >  0:
         print(f'Copying policy to target {tau}')
         agent.copy_model(tau)
@@ -62,5 +60,5 @@ plt.plot(average_rewards)
 plt.plot(rewards)
 plt.xlabel('episode')
 plt.ylabel('reward')
-plt.legend(['Average reward', 'Reward'], loc='upper right')
+plt.legend(['Reward', 'Average reward'], loc='upper right')
 plt.show()

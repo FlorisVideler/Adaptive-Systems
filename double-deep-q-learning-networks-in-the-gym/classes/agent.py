@@ -31,9 +31,12 @@ class Agent:
             best_action = np.argmax(self.policy_network.model.predict(np.array([next_state]))[0])
             if not transition.done:
                 q_value_best_action = self.target_network.model.predict(np.array([next_state]))[0][best_action]
+                # Moet target 0 zijn als next state done is
+                target = transition.reward + self.gamma * q_value_best_action
             else:
                 q_value_best_action = 0
-            target = transition.reward + self.gamma * q_value_best_action
+                target = 0 
+            
             
             current_predictions = self.policy_network.model.predict(np.array([state]))[0]
             current_predictions[action] = target

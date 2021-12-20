@@ -10,7 +10,7 @@ class FunctionApproximator:
         self.model.add(Dense(128, input_shape=(8,), activation="relu"))
         self.model.add(Dense(128, activation="relu"))
         self.model.add(Dense(4, activation="linear"))
-        self.model.compile(optimizer=Adam(learning_rate=0.0001), loss="mse")
+        self.model.compile(optimizer=Adam(learning_rate=0.005), loss="mse")
 
         self.indexes = self.calculate_indexes()
 
