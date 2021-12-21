@@ -1,19 +1,18 @@
 import time
-start_time = time.time()
-
-
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
-
 from classes.transition import Transition
 from classes.agent import Agent
+import tensorflow.compat.v1 as tf
 
+tf.disable_eager_execution()  # Disable eager execution for a big time reduction
+start_time = time.time()
 
 env = gym.make('LunarLander-v2')
 env.reset()
 
-tau = 1
+tau = 0.1
 epsilon = 1
 min_epsilon = 0.08
 epsilon_decay = 0.995
@@ -22,6 +21,9 @@ amount_of_episodes = 1_000
 max_steps = 1_000
 
 memory_size = 10_000
+
+if tau < 1:  # copy_model() needs eager executions (this makes it very slow)
+    tf.enable_eager_execution()
 
 agent = Agent(n_actions=env.action_space.n, n_states=env.observation_space.shape[0], memory_size=memory_size, gamma=0.99, alpha=0.001, epsilon=epsilon, min_epsilon=min_epsilon, epsilon_decay=epsilon_decay)
 
@@ -41,7 +43,7 @@ for i_episode in range(amount_of_episodes):
         action = agent.policy.select_action(state, agent.policy_network.model)
         next_state, reward, done, info = env.step(action)
 
-        # env.render()
+        env.render()
 
         total_reward += reward
         transition = Transition(state, action, reward, next_state, done)

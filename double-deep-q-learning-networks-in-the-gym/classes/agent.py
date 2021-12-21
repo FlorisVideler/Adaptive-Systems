@@ -1,4 +1,3 @@
-import enum
 from classes.memory import Memory
 from classes.functionapproximator import FunctionApproximator
 from classes.epsilongreedypolicy import EpsilonGreedyPolicy
@@ -168,14 +167,15 @@ class Agent:
         """This function copies the weights from the policy network to the target network"""
         if tau >= 1:  # If tau = 1 all the weights will be copied
             self.target_network.model.set_weights(self.policy_network.model.get_weights())
-            # amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
-        # indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
-        # for index_to_change in indexes_to_change:
-        #     i_layer, i_node, i_weight = index_to_change
-        #     new_weight = self.policy_network.model.layers[i_layer].weights[0][i_node][i_weight]
-        #     weights = self.target_network.model.layers[i_layer].get_weights()
-        #     weights[0][i_node, i_weight] = new_weight.numpy()
-        #     self.target_network.model.layers[i_layer].set_weights(weights)
+        else:
+            amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
+            indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
+            for index_to_change in indexes_to_change:
+                i_layer, i_node, i_weight = index_to_change
+                new_weight = self.policy_network.model.layers[i_layer].weights[0][i_node][i_weight]
+                weights = self.target_network.model.layers[i_layer].get_weights()
+                weights[0][i_node, i_weight] = new_weight.numpy()
+                self.target_network.model.layers[i_layer].set_weights(weights)
 
     def save_models(self):
         """This function exports the policy and the target network"""
