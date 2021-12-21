@@ -167,7 +167,7 @@ class Agent:
         """This function copies the weights from the policy network to the target network"""
         if tau >= 1:  # If tau = 1 all the weights will be copied
             self.target_network.model.set_weights(self.policy_network.model.get_weights())
-        else:
+        else:  # Else a percentage of the weights will be copied
             amount_of_weights_to_change = int(len(self.policy_network.indexes) * tau)
             indexes_to_change = sample(self.policy_network.indexes, amount_of_weights_to_change)
             for index_to_change in indexes_to_change:
