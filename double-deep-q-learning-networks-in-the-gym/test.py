@@ -26,7 +26,7 @@ class Agent:
         self.batch_size = batch_size
         
         # allow large replay exp space
-        self.replay_exp = deque(maxlen=1000000)
+        self.replay_exp = deque(maxlen=1_000_000)
         
         self.gamma = 0.99
         self.epsilon = 1.0 # initialize with high exploration, which will decay later
@@ -182,7 +182,7 @@ aver_reward = []
 aver = deque(maxlen=100)
 
 
-for episode in range(10):
+for episode in range(1_000):
     state = env.reset()
     total_reward = 0
     done = False

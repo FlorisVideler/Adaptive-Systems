@@ -17,18 +17,18 @@ class FunctionApproximator:
         self.model.add(Dense(128, input_dim=n_states, activation="relu"))
         self.model.add(Dense(128, activation="relu"))
         self.model.add(Dense(n_actions, activation="linear"))
-        self.model.compile(optimizer=Adam(learning_rate=0.0005), loss="mse")
+        self.model.compile(optimizer=Adam(learning_rate = 0.0001), loss="mse")
 
-        self.indexes = self.calculate_indexes()
+    #     self.indexes = self.calculate_indexes()
 
-    def calculate_indexes(self):
-        layers = self.model.layers
-        indexes = []
-        for layer in range(len(layers)):
-            for node in range(layers[layer].weights[0].shape[0]):
-                for weight in range(layers[layer].weights[0].shape[1]):
-                    indexes.append((layer, node, weight))
-        return indexes
+    # def calculate_indexes(self):
+    #     layers = self.model.layers
+    #     indexes = []
+    #     for layer in range(len(layers)):
+    #         for node in range(layers[layer].weights[0].shape[0]):
+    #             for weight in range(layers[layer].weights[0].shape[1]):
+    #                 indexes.append((layer, node, weight))
+    #     return indexes
 
     # def train(self, x, y):
     #     return self.model.fit(x, y)

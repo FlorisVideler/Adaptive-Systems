@@ -19,7 +19,7 @@ class Agent:
         self.policy_network = FunctionApproximator(n_states, n_actions)
         self.target_network = FunctionApproximator(n_states, n_actions)
         self.copy_model()
-        self.policy = EpsilonGreedyPolicy(n_actions, epsilon, min_epsilon, epsilon_decay)
+        self.policy = EpsilonGreedyPolicy(n_actions, epsilon, min_epsilon, epsilon_decay, n_states)
 
     def learn(self, sample_size):
         sample_size = min(len(self.memory.transitions), sample_size)
@@ -34,51 +34,75 @@ class Agent:
         sample_next_states = np.ndarray(shape = (sample_size, self.n_states))
         sample_dones = np.ndarray(shape = (sample_size, 1))
 
-        # for index_transition, transition in enumerate(batch):
-        #     sample_states[index_transition] = transition.state
-        #     sample_actions[index_transition] = transition.action
-        #     sample_rewards[index_transition] = transition.reward
-        #     sample_next_states[index_transition] = transition.next_state
-        #     sample_dones[index_transition] = transition.done
-
-
         for index_transition, transition in enumerate(batch):
-            sample_states[index_transition] = transition[0]
-            sample_actions[index_transition] = transition[1]
-            sample_rewards[index_transition] = transition[2]
-            sample_next_states[index_transition] = transition[3]
-            sample_dones[index_transition] = transition[4]
+            sample_states[index_transition] = transition.state
+            sample_actions[index_transition] = transition.action
+            sample_rewards[index_transition] = transition.reward
+            sample_next_states[index_transition] = transition.next_state
+            sample_dones[index_transition] = transition.done
 
 
-        policy_next_states_predictions = self.policy_network.model.predict(sample_next_states)
+        # for index_transition, transition in enumerate(batch):
+        #     sample_states[index_transition] = transition[0]
+        #     sample_actions[index_transition] = transition[1]
+        #     sample_rewards[index_transition] = transition[2]
+        #     sample_next_states[index_transition] = transition[3]
+        #     sample_dones[index_transition] = transition[4]
+
+
+        policy_predictions = self.policy_network.model.predict(sample_states)
+
+
+        target_next_states_predictions = self.target_network.model.predict(sample_next_states)
+        
+        # set all Q values terminal states to 0
+        target_next_states_predictions = target_next_states_predictions * (np.ones(shape = sample_dones.shape) - sample_dones)
+        # choose max action for each state
+        target_next_q = np.max(target_next_states_predictions, axis=1)
+
+
+        for i in range(sample_size):
+            a = sample_actions[i,0]
+            policy_predictions[i,int(a)] = sample_rewards[i] + self.gamma * target_next_q[i]
+
+        target = policy_predictions
+        self.policy_network.model.fit(sample_states, target, epochs=1, verbose=0)
+
+
+        # policy_next_states_predictions = self.policy_network.model.predict(sample_next_states)
 
         # Wat is de beste actie?
 
-        policy_next_states_best_actions = np.argmax(policy_next_states_predictions, axis=1)
+        # policy_next_states_best_actions = np.argmax(policy_next_states_predictions, axis=1)
         # f = lambda a: [a]
         # B
         # policy_next_states_best_actions = np.array(list(map(f, policy_next_states_best_actions)))
 
 
-        target_next_states_predictions = self.target_network.model.predict(sample_next_states)
+        # target_next_states_predictions = self.target_network.model.predict(sample_next_states)
 
-        # Na de indexing? (A)
-        target_next_states_predictions = target_next_states_predictions * (np.ones(shape = sample_dones.shape) - sample_dones)
+        # Na de indexing? 
+        # target_next_states_predictions = target_next_states_predictions * (np.ones(shape = sample_dones.shape) - sample_dones)
+
+
 
         # m,n = target_next_states_predictions.shape
         # q_value_next_state_action = np.take(target_next_states_predictions, policy_next_states_best_actions + np.arange(m)[:,None])
 
-        q_value_next_state_action = np.ndarray(shape = (sample_size, 1))
+        # q_value_next_state_action = np.ndarray(shape = (sample_size, 1))
 
-        for index_item, item in np.ndenumerate(policy_next_states_best_actions):
-            q_value_next_state_action[index_item] = target_next_states_predictions[index_item][item]
+        # for index_item, item in np.ndenumerate(policy_next_states_best_actions):
+        #     q_value_next_state_action[index_item] = target_next_states_predictions[index_item, item]
 
-        for i in range(sample_size):
-            a = sample_actions[i,0]
-            policy_next_states_predictions[i,int(a)] = sample_rewards[i] + self.gamma * q_value_next_state_action[i]
+        # for i in range(sample_size):
+        #     a = sample_actions[i,0]
+        #     reward = sample_rewards[i, 0]
+        #     next_state_best_action_policy = policy_next_states_best_actions[i]
+        #     q_value_best_step_target = target_next_states_predictions[i, next_state_best_action_policy]
+        #     policy_next_states_predictions[i,int(a)] = reward + self.gamma * q_value_best_step_target
 
-        target = policy_next_states_predictions
-        self.policy_network.model.fit(sample_states, target, epochs=1, verbose=0)
+        # target = policy_next_states_predictions
+        # self.policy_network.model.fit(sample_states, target, epochs=1, verbose=0)
 
 
         # targets = []
@@ -107,6 +131,47 @@ class Agent:
         # #TODO: Next state of state?
         # self.policy_network.train(states, targets)
         # print(f'Epsilon: {self.policy.epsilon}')
+
+
+
+    def learn_david(self, sample_size):
+        sample_size = min(len(self.memory.transitions), sample_size)
+        batch = self.memory.sample(sample_size)
+
+        sample_states = np.ndarray(shape = (sample_size, self.n_states))
+        sample_actions = np.ndarray(shape = (sample_size, 1))
+        sample_rewards = np.ndarray(shape = (sample_size, 1))
+        sample_next_states = np.ndarray(shape = (sample_size, self.n_states))
+        sample_dones = np.ndarray(shape = (sample_size, 1))
+
+        for index_transition, transition in enumerate(batch):
+            sample_states[index_transition] = transition.state
+            sample_actions[index_transition] = transition.action
+            sample_rewards[index_transition] = transition.reward
+            sample_next_states[index_transition] = transition.next_state
+            sample_dones[index_transition] = transition.done
+
+
+
+        q_values_states_policy = self.policy_network.model.predict(sample_next_states)
+        q_values_next_states_policy = self.policy_network.model.predict(sample_next_states)
+        best_actions_next_states_policy = np.argmax(q_values_next_states_policy, axis=1)
+
+        q_values_next_states_target = self.target_network.model.predict(sample_next_states)
+        q_values_next_states_target = q_values_next_states_target * (np.ones(shape = sample_dones.shape) - sample_dones)
+
+        for i in range(sample_size):
+            best_action = best_actions_next_states_policy[i]
+            q_value_next_state_target = q_values_next_states_target[i][best_action]
+            target = sample_rewards[i][0] + self.gamma * q_value_next_state_target
+            taken_action = int(sample_actions[i][0])
+            q_values_states_policy[i][taken_action] = target
+
+        q_target = q_values_next_states_policy
+        # States of next_states?
+        self.policy_network.model.fit(sample_states, q_target, epochs = 1, verbose = 0)
+
+
 
     def copy_model(self, tau=1):
         if tau >= 1:
