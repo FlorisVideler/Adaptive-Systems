@@ -8,7 +8,7 @@ from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Dense, Embedding, Reshape
 from tensorflow.keras.optimizers import Adam
 
-tf.disable_v2_behavior() # testing on tensorflow 1
+tf.disable_v2_behavior()  # testing on tensorflow 1
 
 
 class FunctionApproximator:
@@ -17,7 +17,7 @@ class FunctionApproximator:
         self.model.add(Dense(128, input_dim=n_states, activation="relu"))
         self.model.add(Dense(128, activation="relu"))
         self.model.add(Dense(n_actions, activation="linear"))
-        self.model.compile(optimizer=Adam(learning_rate = 0.0001), loss="mse")
+        self.model.compile(optimizer=Adam(learning_rate=0.0001), loss="mse")
 
     #     self.indexes = self.calculate_indexes()
 
@@ -34,6 +34,7 @@ class FunctionApproximator:
     #     return self.model.fit(x, y)
 
     def save(self, location='models/model.h5'):
+        """This function exports the current model"""
         self.model.save(location)
 
     def load_weights(self, new_weights):
@@ -43,4 +44,4 @@ class FunctionApproximator:
         self.model = tf.keras.models.load_model(location)
 
     def __str__(self):
-        return "...."
+        return self.model.summary()

@@ -41,19 +41,20 @@ for i_episode in range(amount_of_episodes):
         action = agent.policy.select_action(state, agent.policy_network.model)
         next_state, reward, done, info = env.step(action)
 
-        # env.render()
+        env.render()
 
         total_reward += reward
         transition = Transition(state, action, reward, next_state, done)
         agent.memory.append_memory(transition)
 
         state = next_state
-        agent.learn(64)
+        agent.learn(sample_size=64)
 
     agent.copy_model(tau)
 
     agent.policy.decay_epsilon()
 
+    # Save reward history
     rewards.append(total_reward)
     avg_reward = np.mean(rewards)
     last_100_avg_reward = np.mean(rewards[-100:])
@@ -68,6 +69,8 @@ env.close()
 
 print("--- %s seconds ---" % (time.time() - start_time))
 # plt.plot([i for i in range(amount_of_episodes)], rewards)
+
+# Plot rewards
 plt.plot(rewards)
 plt.plot(average_rewards)
 plt.plot(last_100_average_rewards)
