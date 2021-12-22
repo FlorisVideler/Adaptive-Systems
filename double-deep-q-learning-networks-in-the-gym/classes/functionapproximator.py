@@ -32,5 +32,14 @@ class FunctionApproximator:
                     indexes.append((layer, node, weight))
         return indexes
 
+    def save(self, location: str) -> None:
+        """
+        Saves the model.
+
+        Args:
+            location (str): Where to save to model to.
+        """
+        self.model.save(location)
+
     def __str__(self):
         return self.model.summary()
