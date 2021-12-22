@@ -4,6 +4,9 @@ import numpy as np
 
 @dataclass
 class Transition:
+    """
+    Dataclass to represent a transition (SARS).
+    """
     state: np.ndarray
     action: int
     reward: int

@@ -1,4 +1,3 @@
-import time
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,17 +6,18 @@ from classes.agent import Agent
 import tensorflow.compat.v1 as tf
 
 tf.disable_eager_execution()  # Disable eager execution for a big time reduction
-start_time = time.time()
 
 env = gym.make('LunarLander-v2')
 env.reset()
 
-tau = 0.1
+tau = 1
 epsilon = 1
 min_epsilon = 0.08
 epsilon_decay = 0.995
+gamma = 0.99
+alpha = 0.0001
 
-amount_of_episodes = 1_000
+amount_of_episodes = 50
 max_steps = 1_000
 
 memory_size = 10_000
@@ -25,9 +25,7 @@ memory_size = 10_000
 if tau < 1:  # copy_model() needs eager executions (this makes it very slow)
     tf.enable_eager_execution()
 
-agent = Agent(n_actions=env.action_space.n, n_states=env.observation_space.shape[0], memory_size=memory_size, gamma=0.99, alpha=0.001, epsilon=epsilon, min_epsilon=min_epsilon, epsilon_decay=epsilon_decay)
-
-# agent.policy_network.load_model('/home/floris/Desktop/School/AS/opdracht/double-deep-q-learning-networks-in-the-gym/models/policy-model-20211216-211218')
+agent = Agent(n_actions=env.action_space.n, n_states=env.observation_space.shape[0], memory_size=memory_size, gamma=gamma, alpha=alpha, epsilon=epsilon, min_epsilon=min_epsilon, epsilon_decay=epsilon_decay)
 
 rewards = []
 average_rewards = []
@@ -38,7 +36,7 @@ for i_episode in range(amount_of_episodes):
     print(f'Episode {i_episode}')
     total_reward = 0
     done = False
-
+    frames = []
     while not done:
         action = agent.policy.select_action(state, agent.policy_network.model)
         next_state, reward, done, info = env.step(action)
@@ -63,15 +61,10 @@ for i_episode in range(amount_of_episodes):
     average_rewards.append(avg_reward)
     last_100_average_rewards.append(last_100_avg_reward)
     print(f'Current reward: {total_reward}, avg reward: {avg_reward}, {last_100_avg_reward}')
-    # if last_100_avg_reward >= 200:
-    #     break
 env.close()
 
 agent.save_models()
 print('Saved models')
-
-print("--- %s seconds ---" % (time.time() - start_time))
-# plt.plot([i for i in range(amount_of_episodes)], rewards)
 
 # Plot rewards
 plt.title("Learning Curve")

@@ -6,30 +6,50 @@ import numpy as np
 import time
 
 
+"""
+        This function learns the policy network
+        The algorithm is inspired by: https://github.com/anh-nn01/Lunar-Lander-Double-Deep-Q-Networks
+        """
+
+
 class Agent:
     """The agent class (lunar lander)"""
-    def __init__(self, n_actions, n_states, memory_size, gamma, alpha, epsilon, min_epsilon, epsilon_decay) -> None:
+    def __init__(self, n_actions: int, n_states: int, memory_size: int, gamma: float, alpha: float, epsilon: float, min_epsilon: float, epsilon_decay: float) -> None:
+        """
+        Constructor for the Agent class
+
+        Args:
+            n_actions (int): The amount of actions that can be taken.
+            n_states (int): The lenght of the state element.
+            memory_size (int): The size of the memory.
+            gamma (float): The gamm / discount.
+            alpha (float): The alpha / learning rate for the Adam optimizer.
+            epsilon (float): The epsilon to use.
+            min_epsilon (float): The lowest the epsilon can go.
+            epsilon_decay (float): The factor the epsilon decays by.
+        """
         self.gamma = gamma
         self.alpha = alpha
         self.epsilon = epsilon
         self.n_states = n_states
 
         self.memory = Memory(memory_size)
-        self.policy_network = FunctionApproximator(n_states, n_actions)
-        self.target_network = FunctionApproximator(n_states, n_actions)
+        self.policy_network = FunctionApproximator(n_states, n_actions, alpha)
+        self.target_network = FunctionApproximator(n_states, n_actions, alpha)
         self.copy_model()
         self.policy = EpsilonGreedyPolicy(n_actions, epsilon, min_epsilon, epsilon_decay, n_states)
 
-    def learn(self, sample_size):
+    def learn(self, sample_size: int) -> None:
         """
-        This function learns the policy network
-        The algorithm is inspired by: https://github.com/anh-nn01/Lunar-Lander-Double-Deep-Q-Networks
+        Learns the agent.
+        This algorithm is inspired by: https://github.com/anh-nn01/Lunar-Lander-Double-Deep-Q-Networks
+
+        Args:
+            sample_size (int): The size of sample to take from the memory.
         """
         # Create batch from memory
         sample_size = min(len(self.memory.transitions), sample_size)
         batch = self.memory.sample(sample_size)
-
-        # Onze oplossing + numpy
 
         # Transform the batch of transitions to numpy arrays
         sample_states = np.ndarray(shape=(sample_size, self.n_states))
@@ -44,13 +64,6 @@ class Agent:
             sample_rewards[index_transition] = transition.reward
             sample_next_states[index_transition] = transition.next_state
             sample_dones[index_transition] = transition.done
-
-        # for index_transition, transition in enumerate(batch):
-        #     sample_states[index_transition] = transition[0]
-        #     sample_actions[index_transition] = transition[1]
-        #     sample_rewards[index_transition] = transition[2]
-        #     sample_next_states[index_transition] = transition[3]
-        #     sample_dones[index_transition] = transition[4]
 
         policy_predictions = self.policy_network.model.predict(sample_states)
 
@@ -69,66 +82,14 @@ class Agent:
         target = policy_predictions
         self.policy_network.model.fit(sample_states, target, epochs=1, verbose=0)
 
-        # policy_next_states_predictions = self.policy_network.model.predict(sample_next_states)
+    def learn_david(self, sample_size: int) -> None:
+        """
+        Learns the agent, or at least it is supposed to.
+        This code is based on Canvas.
 
-        # Wat is de beste actie?
-
-        # policy_next_states_best_actions = np.argmax(policy_next_states_predictions, axis=1)
-        # f = lambda a: [a]
-        # B
-        # policy_next_states_best_actions = np.array(list(map(f, policy_next_states_best_actions)))
-
-        # target_next_states_predictions = self.target_network.model.predict(sample_next_states)
-
-        # Na de indexing? 
-        # target_next_states_predictions = target_next_states_predictions * (np.ones(shape = sample_dones.shape) - sample_dones)
-
-        # m,n = target_next_states_predictions.shape
-        # q_value_next_state_action = np.take(target_next_states_predictions, policy_next_states_best_actions + np.arange(m)[:,None])
-
-        # q_value_next_state_action = np.ndarray(shape = (sample_size, 1))
-
-        # for index_item, item in np.ndenumerate(policy_next_states_best_actions):
-        #     q_value_next_state_action[index_item] = target_next_states_predictions[index_item, item]
-
-        # for i in range(sample_size):
-        #     a = sample_actions[i,0]
-        #     reward = sample_rewards[i, 0]
-        #     next_state_best_action_policy = policy_next_states_best_actions[i]
-        #     q_value_best_step_target = target_next_states_predictions[i, next_state_best_action_policy]
-        #     policy_next_states_predictions[i,int(a)] = reward + self.gamma * q_value_best_step_target
-
-        # target = policy_next_states_predictions
-        # self.policy_network.model.fit(sample_states, target, epochs=1, verbose=0)
-
-        # targets = []
-        # states = []
-        # for transition in batch:
-        #     next_state = transition.next_state
-        #     state = transition.state
-        #     action = transition.action
-        #     states.append(state)
-        #     best_action = np.argmax(self.policy_network.model.predict(np.array([next_state]))[0])
-        #     if not transition.done:
-        #         q_value_best_action = self.target_network.model.predict(np.array([next_state]))[0][best_action]
-        #         # Moet target 0 zijn als next state done is
-        #     else:
-        #         q_value_best_action = 0
-
-        #     target = transition.reward + self.gamma * q_value_best_action
-
-        #     current_predictions = self.policy_network.model.predict(np.array([state]))[0]
-        #     current_predictions[action] = target
-        #     targets.append(np.array([current_predictions]))
-
-        # targets = np.array(targets)
-        # states = np.array(states)
-        # # print(targets.shape, next_states.shape)
-        # #TODO: Next state of state?
-        # self.policy_network.train(states, targets)
-        # print(f'Epsilon: {self.policy.epsilon}')
-
-    def learn_david(self, sample_size):
+        Args:
+            sample_size (int): The size of sample to take from the memory.
+        """
         sample_size = min(len(self.memory.transitions), sample_size)
         batch = self.memory.sample(sample_size)
 
@@ -160,11 +121,15 @@ class Agent:
             q_values_states_policy[i][taken_action] = target
 
         q_target = q_values_next_states_policy
-        # States of next_states?
         self.policy_network.model.fit(sample_states, q_target, epochs=1, verbose=0)
 
-    def copy_model(self, tau=1):
-        """This function copies the weights from the policy network to the target network"""
+    def copy_model(self, tau: int = 1) -> None:
+        """
+        copies the weights from the policy network to the target network
+
+        Args:
+            tau (int, optional): The percentage of the model to copy. Defaults to 1.
+        """
         if tau >= 1:  # If tau = 1 all the weights will be copied
             self.target_network.model.set_weights(self.policy_network.model.get_weights())
         else:  # Else a percentage of the weights will be copied
@@ -178,7 +143,9 @@ class Agent:
                 self.target_network.model.layers[i_layer].set_weights(weights)
 
     def save_models(self):
-        """This function exports the policy and the target network"""
+        """
+        This function exports the policy and the target network
+        """
         self.policy_network.save(
             f'double-deep-q-learning-networks-in-the-gym/models/policy-model-{time.strftime("%Y%m%d-%H%M%S")}')
         self.target_network.save(

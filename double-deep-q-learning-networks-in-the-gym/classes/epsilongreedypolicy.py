@@ -1,18 +1,36 @@
 import numpy as np
-
+from tensorflow.keras import Sequential
 
 
 class EpsilonGreedyPolicy:
-    """Epsilon greddy policy class"""
-    def __init__(self, actions, epsilon, min_epsilon, epsilon_decay, n_states):
+    def __init__(self, actions: list, epsilon: float, min_epsilon: float, epsilon_decay: float, n_states: int) -> None:
+        """
+        The constructor of the epsilon greedy policy class.
+
+        Args:
+            actions (list): The actions that are available.
+            epsilon (float): The current epsilon.
+            min_epsilon (float): The lowest the epsilon can go.
+            epsilon_decay (float): The factor the epsilon decays by.
+            n_states (int): The lenght of the states.
+        """
         self.actions = actions
         self.epsilon = epsilon
-        self.min_epsilon = min_epsilon  # The minimal epsilon
+        self.min_epsilon = min_epsilon
         self.epsilon_decay = epsilon_decay
         self.n_states = n_states
 
-    def select_action(self, state, model):
-        """Selects action based on the current state"""
+    def select_action(self, state: np.ndarray, model: Sequential) -> int:
+        """
+        Selects an action based on a state, using a model as Q-table.
+
+        Args:
+            state (np.ndarray): The state to base the action of.
+            model (Sequential): The model to use.
+
+        Returns:
+            int: The action to take.
+        """
         if np.random.uniform(0.0, 1.0) < self.epsilon:  # exploration
             action = np.random.choice(self.actions)
         else:
@@ -21,8 +39,10 @@ class EpsilonGreedyPolicy:
             action = np.argmax(q_values[0])  # because the output is m * n, so we need to consider the dimension [0]
         return action
 
-    def decay_epsilon(self):
-        """This function will decay the epsilon over time"""
+    def decay_epsilon(self) -> None:
+        """
+        Decays the epsilon
+        """
         self.epsilon = max(self.min_epsilon, self.epsilon_decay * self.epsilon)
 
     def __str__(self):
