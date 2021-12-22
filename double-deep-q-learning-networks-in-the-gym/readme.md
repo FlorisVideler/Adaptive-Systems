@@ -15,8 +15,10 @@ Wanneer wij 1:1 de pseudocode van canvas overnemen is onze agent niet in staat o
 Tensorflow v2 is extreem traag met onze lunar lander implementatie. Dit komt door het gebruik van “eager execution”. In Tensorflow v1 is het mogelijk om eager execution uit te zetten dit kan het trainen tot wel 21 keer zo snel maken. Waardoor we een stuk sneller resultaat zagen.
 <br>
 
-![Lunar landing learning_curv](https://i.ibb.co/NSp9Krr/lunarlanding.png)
+<b>Learning curve</b>
+![Lunar landing learning_curve](https://i.ibb.co/NSp9Krr/lunarlanding.png)
 
 <br>
+<b>Lunar landing gif</b>
 
 ![Lunar landing gif](https://github.com/florisvideler/Adaptive-Systems/blob/main/double-deep-q-learning-networks-in-the-gym/assets/lunar.gif?raw=true)
