@@ -17,7 +17,7 @@ Tensorflow v2 is extreem traag met onze lunar lander implementatie. Dit komt doo
 
 <b>Learning curve</b>
 
-![Lunar landing learning_curve](https://i.ibb.co/NSp9Krr/lunarlanding.png)
+![Lunar landing learning curve](https://github.com/florisvideler/Adaptive-Systems/blob/main/double-deep-q-learning-networks-in-the-gym/assets/5000_grid.png?raw=true)
 
 <br>
 <b>Lunar landing gif</b>

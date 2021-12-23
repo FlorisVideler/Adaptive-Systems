@@ -17,7 +17,7 @@ epsilon_decay = 0.995
 gamma = 0.99
 alpha = 0.0001
 
-amount_of_episodes = 50
+amount_of_episodes = 5_000
 max_steps = 1_000
 
 memory_size = 10_000
@@ -74,5 +74,25 @@ plt.plot(last_100_average_rewards)
 plt.xlabel('episode')
 plt.ylabel('reward')
 plt.legend(['Reward', 'Average reward', 'Average reward last 100'], loc='upper right')
-plt.xticks(np.arange(amount_of_episodes+1, step=50))
+plt.xticks(np.arange(amount_of_episodes+1, step=100))
+min_y_tick = int(min(rewards) - min(rewards) % 100)
+print(min_y_tick)
+max_y_tick = int(max(rewards) - max(rewards) % -100)
+print(max_y_tick)
+plt.yticks(np.arange(start=min_y_tick, stop=max_y_tick, step=100))
+plt.show()
+plt.title("Learning Curve")
+plt.plot(rewards)
+plt.plot(average_rewards)
+plt.plot(last_100_average_rewards)
+plt.xlabel('episode')
+plt.ylabel('reward')
+plt.legend(['Reward', 'Average reward', 'Average reward last 100'], loc='upper right')
+plt.xticks(np.arange(amount_of_episodes+1, step=100))
+min_y_tick = int(min(rewards) - min(rewards) % 100)
+print(min_y_tick)
+max_y_tick = int(max(rewards) - max(rewards) % -100)
+print(max_y_tick)
+plt.yticks(np.arange(start=min_y_tick, stop=max_y_tick, step=100))
+plt.grid()
 plt.show()
