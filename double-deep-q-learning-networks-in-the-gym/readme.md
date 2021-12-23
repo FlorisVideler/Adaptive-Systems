@@ -8,7 +8,9 @@ De agent leert met de implementatie waarin wij een klein beetje zijn afgeweken v
 <br>
 
 <b>Afwijking pseudocode canvas</b> <br>
-Wanneer wij 1:1 de pseudocode van canvas overnemen is onze agent niet in staat om zichzelf aan te leren om succesvol te landen. Wij denken dat er iets mis gaat met de pseudo code en zijn daarom iets afgeweken van canvas. Het vaststellen van de beste actie met het policy netwerk lijkt niet juist te zijn. Door het voorspellen van de beste actie met het target netwerk en met die uitkomst de target te berekenen en het policy netwerk te trainen behaalde wij al snel beter resultaat.
+Wanneer wij 1:1 de pseudocode van canvas overnemen is onze agent niet in staat om zichzelf aan te leren om succesvol te landen. 
+Wij denken dat er iets mis gaat met onze interpretatie of implementatie van de pseudo code en zijn daarom iets afgeweken van canvas. Het vaststellen van de beste actie met het policy netwerk lijkt niet juist te zijn.
+Door het voorspellen van de beste actie met het target netwerk en met die uitkomst de target te berekenen en het policy netwerk te trainen behaalde wij al snel beter resultaat.
 <br>
 
 <b>Tijd</b> <br>
