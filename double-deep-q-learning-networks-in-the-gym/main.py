@@ -41,7 +41,7 @@ for i_episode in range(amount_of_episodes):
         action = agent.policy.select_action(state, agent.policy_network.model)
         next_state, reward, done, info = env.step(action)
 
-        # env.render()
+        env.render()
 
         total_reward += reward
         transition = Transition(state, action, reward, next_state, done)
@@ -67,20 +67,6 @@ agent.save_models()
 print('Saved models')
 
 # Plot rewards
-plt.title("Learning Curve")
-plt.plot(rewards)
-plt.plot(average_rewards)
-plt.plot(last_100_average_rewards)
-plt.xlabel('episode')
-plt.ylabel('reward')
-plt.legend(['Reward', 'Average reward', 'Average reward last 100'], loc='upper right')
-plt.xticks(np.arange(amount_of_episodes+1, step=100))
-min_y_tick = int(min(rewards) - min(rewards) % 100)
-print(min_y_tick)
-max_y_tick = int(max(rewards) - max(rewards) % -100)
-print(max_y_tick)
-plt.yticks(np.arange(start=min_y_tick, stop=max_y_tick, step=100))
-plt.show()
 plt.title("Learning Curve")
 plt.plot(rewards)
 plt.plot(average_rewards)
